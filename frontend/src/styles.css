@@ -31,7 +31,6 @@ main { min-height: 60vh; }
 /* Wide screens use up to 1440px; side padding grows a little with the screen */
 .container { width: 100%; max-width: 1440px; margin: 0 auto; padding-inline: clamp(16px, 3vw, 40px); }
 .section { padding-block: 32px; }
-.narrow { max-width: 760px; }
 .muted { color: var(--muted); }
 .small { font-size: .875rem; }
 .eyebrow { text-transform: uppercase; letter-spacing: .14em; font-size: .72rem; color: var(--maroon); margin: 0 0 .25rem; }
@@ -92,7 +91,15 @@ input.ng-invalid.ng-touched, textarea.ng-invalid.ng-touched { border-color: var(
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .form-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 .inline-form { display: flex; gap: 8px; margin-bottom: 16px; max-width: 480px; }
-.auth-box { max-width: 440px; }
+.auth-grid { display: grid; gap: 32px; align-items: center; }
+.auth-welcome { display: none; text-align: center; }
+.auth-welcome img { width: min(360px, 80%); margin: 0 auto 12px; mix-blend-mode: multiply; }
+.auth-welcome .tagline { font: italic 600 1.5rem var(--serif); color: var(--maroon); }
+.auth-box { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: clamp(20px, 3vw, 36px); }
+@media (min-width: 800px) {
+  .auth-grid { grid-template-columns: 1fr 1fr; min-height: 60vh; }
+  .auth-welcome { display: block; }
+}
 .dev-note { background: var(--gold-soft); padding: 8px 12px; border-radius: 8px; }
 
 /* ---------- Hero ---------- */
@@ -168,13 +175,18 @@ input.ng-invalid.ng-touched, textarea.ng-invalid.ng-touched { border-color: var(
 .cart-price { display: grid; justify-items: end; gap: 6px; }
 .summary { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
 .checkout-grid { display: grid; gap: 24px; }
-@media (min-width: 800px) { .checkout-grid { grid-template-columns: 1.2fr 1fr; } }
+@media (min-width: 800px) { .checkout-grid { grid-template-columns: 1.6fr 1fr; gap: 40px; } }
+.cart-grid { display: grid; gap: 24px; align-items: start; }
+.cart-grid .order-summary { position: sticky; top: 100px; display: grid; gap: 10px; }
+@media (min-width: 800px) { .cart-grid { grid-template-columns: 1.6fr 1fr; gap: 40px; } }
 .order-summary { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; align-self: start; }
 .summary-line { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; font-size: .95rem; }
 .summary-line.total { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 10px; }
 
 /* ---------- Orders ---------- */
-.order-card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 12px; }
+.order-card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+.order-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); align-items: start; }
+.order-grid .empty { grid-column: 1 / -1; }
 .order-card header { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 4px; }
 .order-card select { width: auto; padding: .35rem .6rem; }
 .order-card.highlight { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold-soft); }
@@ -189,7 +201,7 @@ input.ng-invalid.ng-touched, textarea.ng-invalid.ng-touched { border-color: var(
 .tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--line); margin-bottom: 16px; overflow-x: auto; }
 .tabs button { flex: none; background: none; border: 0; padding: 10px 14px; font: 500 .95rem var(--sans); cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; }
 .tabs button.active { color: var(--green); border-color: var(--green); }
-.admin-form { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; max-width: 640px; margin-bottom: 16px; }
+.admin-form { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; }
 .admin-preview { width: 120px; }
 .table-wrap { overflow-x: auto; margin-top: 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper); }
 .table { width: 100%; border-collapse: collapse; font-size: .92rem; }
@@ -243,3 +255,4 @@ input.ng-invalid.ng-touched, textarea.ng-invalid.ng-touched { border-color: var(
 .profile-email { font-size: .8rem; color: var(--muted); padding: 6px 10px 10px; margin: 0 0 4px; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
 .profile-email strong { color: var(--ink); font-weight: 500; }
 .profile-menu .logout { color: var(--maroon); }
+.order-summary .summary { border-top: 0; padding-top: 0; }

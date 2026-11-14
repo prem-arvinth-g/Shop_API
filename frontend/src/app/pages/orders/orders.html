@@ -1,4 +1,4 @@
-<section class="container section narrow">
+<section class="container section">
   @if (id()) {
     <div class="success-banner">
       <h2>Thank you! Order #{{ id() }} is confirmed.</h2>
@@ -9,6 +9,7 @@
   <h1 class="page-title">My orders</h1>
 
   @if (orders(); as list) {
+    <div class="order-grid">
     @for (o of list; track o.id) {
       <article class="order-card" [class.highlight]="'' + o.id === id()">
         <header>
@@ -27,6 +28,7 @@
         <a routerLink="/shop" class="btn">Start shopping</a>
       </div>
     }
+    </div>
   } @else {
     <p class="muted">Loading…</p>
   }

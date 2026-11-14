@@ -1,4 +1,4 @@
-<section class="container section narrow">
+<section class="container section">
   @if (cart.buyNow(); as b) {
     <a [routerLink]="['/product', b.product.id]" class="back">← Back to {{ b.product.name }}</a>
   } @else {

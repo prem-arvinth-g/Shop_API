@@ -93,6 +93,7 @@
 
   <!-- ================= ORDERS ================= -->
   @if (tab() === 'orders') {
+    <div class="order-grid">
     @for (o of orders(); track o.id) {
       <article class="order-card">
         <header>
@@ -111,5 +112,6 @@
     } @empty {
       <p class="muted">No orders yet.</p>
     }
+    </div>
   }
 </section>

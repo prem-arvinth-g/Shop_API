@@ -1,7 +1,8 @@
-<section class="container section narrow">
+<section class="container section">
   <h1 class="page-title">Your cart</h1>
 
   @if (cart.items().length) {
+    <div class="cart-grid">
     <ul class="cart-list">
       @for (i of cart.items(); track i.product.id) {
         <li class="cart-row">
@@ -24,12 +25,15 @@
         </li>
       }
     </ul>
+    <aside class="order-summary">
     <div class="summary">
       <span>Total</span>
       <strong class="price-lg">₹{{ cart.total() | number }}</strong>
     </div>
     <p class="muted">Free shipping across India.</p>
     <a routerLink="/checkout" class="btn btn-block" (click)="cart.buyNow.set(null)">Checkout</a>
+    </aside>
+    </div>
   } @else {
     <div class="empty">
       <p>Your cart is empty.</p>

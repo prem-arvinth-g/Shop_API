@@ -54,7 +54,7 @@ const PAGES: Record<string, { title: string; body: string[] }> = {
 @Component({
   selector: 'app-policy',
   template: `
-    <section class="container section narrow">
+    <section class="container section">
       <h1 class="page-title">{{ content().title }}</h1>
       @for (line of content().body; track $index) { <p>{{ line }}</p> }
     </section>

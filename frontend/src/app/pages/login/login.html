@@ -1,4 +1,10 @@
-<section class="container section auth-box">
+<section class="container section auth-grid">
+  <div class="auth-welcome">
+    <img src="brand/logo-main.jpg" alt="Anand Cotton Sarees" width="820" height="745">
+    <p class="tagline">Rooted in Tradition. Woven for You.</p>
+    <p class="muted">Log in to check out, track your orders and save your details. No password to remember.</p>
+  </div>
+  <div class="auth-box">
   <h1 class="page-title">Login</h1>
 
   @if (step() === 'email') {
@@ -22,4 +28,5 @@
       <button type="button" class="link" (click)="step.set('email')">Use a different email</button>
     </form>
   }
+  </div>
 </section>
