@@ -5,7 +5,7 @@ namespace ShopApi.Services;
 // If BREVO_API_KEY is not set (your PC), the email is printed in the server console instead.
 public class EmailService(HttpClient http, IConfiguration cfg, ILogger<EmailService> log)
 {
-    public async Task Send(string to, string subject, string body)
+    public async Task Send(string to, string subject, string body, string? html = null)
     {
         var apiKey = cfg["BREVO_API_KEY"];
         if (string.IsNullOrEmpty(apiKey))
@@ -21,7 +21,8 @@ public class EmailService(HttpClient http, IConfiguration cfg, ILogger<EmailServ
                 sender = new { name = "Anand Cotton Sarees", email = cfg["EMAIL_FROM"] },   // must be a verified sender in Brevo
                 to = new[] { new { email = to } },
                 subject,
-                textContent = body,
+                textContent = body,   // plain version for old mail apps
+                htmlContent = html,   // styled version most apps show
             }),
         };
         req.Headers.Add("api-key", apiKey);
