@@ -5,6 +5,7 @@ services:
     name: anand-cotton-sarees
     runtime: docker
     plan: free
+    region: singapore        # same region as the Neon database = fast queries
     healthCheckPath: /api/categories
     envVars:
       - key: ConnectionStrings__Postgres     # from Neon (".NET" connection string format)
