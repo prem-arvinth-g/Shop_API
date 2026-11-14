@@ -17,6 +17,8 @@ backend/wwwroot/
 appsettings.*.local.json
 
 # Tools
+Shop/
+.obsidian/
 graphify-out/
 .vs/
 *.user
