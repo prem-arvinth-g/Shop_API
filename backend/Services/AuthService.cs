@@ -21,10 +21,11 @@ public class AuthService(AppDb db, EmailService email, IConfiguration cfg)
         db.OtpCodes.RemoveRange(db.OtpCodes.Where(o => o.Email == address));        // old codes stop working
         var code = RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");      // crypto-random, 000000-999999
         db.OtpCodes.Add(new OtpCode { Email = address, CodeHash = Hash(address, code), ExpiresAt = DateTime.UtcNow.AddMinutes(CodeMinutes) });
-        await db.SaveChangesAsync();
 
+        // Send first, save after: if the email fails, nothing is saved and the user can retry straight away.
         await email.Send(address, "Your Anand Cotton Sarees login code",
             $"Your login code is {code}. It expires in {CodeMinutes} minutes. If you did not ask for it, ignore this email.");
+        await db.SaveChangesAsync();
         return code;
     }
 

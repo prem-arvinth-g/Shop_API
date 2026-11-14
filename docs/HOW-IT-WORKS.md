@@ -74,7 +74,7 @@ No server call. The cart lives in the browser until checkout.
    - deletes this email's old codes
    - line 22 makes a **crypto-random** 6-digit code
    - saves only a **SHA-256 hash** of the code, never the code itself, with a 5-minute expiry
-   - emails it through `backend/Services/EmailService.cs`. On your PC, with no SMTP set, it is printed in the console, and the API also returns `devCode` so the login page can show it.
+   - emails it through `backend/Services/EmailService.cs`, which calls Brevo's HTTPS API. SMTP is not used because Render's free plan blocks SMTP ports. The email is sent **before** the code is saved, so if sending fails the user isn't locked out for 60 seconds. On your PC, with no `BREVO_API_KEY` set, it is printed in the console, and the API also returns `devCode` so the login page can show it.
 7. The browser switches to the "enter code" step.
 
 ### Step B: "Verify & log in"

@@ -24,13 +24,7 @@ services:
         sync: false
       - key: CLOUDINARY_API_SECRET
         sync: false
-      - key: SMTP_HOST                       # e.g. smtp-relay.brevo.com
+      - key: BREVO_API_KEY                   # Brevo > Settings > SMTP & API > API keys (starts with xkeysib-)
         sync: false
-      - key: SMTP_PORT
-        value: "587"
-      - key: SMTP_USER
-        sync: false
-      - key: SMTP_PASS
-        sync: false
-      - key: SMTP_FROM                       # e.g. Anand Cotton Sarees <orders@yourdomain.in>
+      - key: EMAIL_FROM                      # a sender email you verified in Brevo
         sync: false

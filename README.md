@@ -42,7 +42,7 @@ dotnet test tests
 
 1. **Neon** (database): create a free project at neon.tech. Copy the connection string in **.NET format**.
 2. **Cloudinary** (photos): create a free account. Copy the cloud name, API key and API secret.
-3. **Email** for login codes: create a free Brevo account, open SMTP & API, and copy the host, login and SMTP key.
+3. **Email** for login codes: create a free Brevo account, add and verify a sender, then go to Settings → SMTP & API → **API keys** and generate an API key (`xkeysib-...`). Use the API, not SMTP: Render's free plan blocks SMTP ports.
 4. **Razorpay**: sign up, stay in **Test mode**, and go to Settings → API Keys to copy the key id and secret. Then add a webhook at Settings → Webhooks:
    - URL: `https://<your-app>.onrender.com/api/orders/webhook`
    - event: `payment.captured`
@@ -71,6 +71,7 @@ The same Docker image runs on AWS Lightsail Containers or App Runner. Set the sa
 | `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET` | Razorpay API keys |
 | `RAZORPAY_WEBHOOK_SECRET` | the secret you typed when creating the webhook |
 | `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | photo storage |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | email for login codes |
+| `BREVO_API_KEY` | Brevo API key that sends the login-code emails |
+| `EMAIL_FROM` | the sender email you verified in Brevo |
 
 **Never commit these.** They belong only in Render's dashboard (or a local `.env`, which git ignores).

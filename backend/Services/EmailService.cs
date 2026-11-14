@@ -1,25 +1,37 @@
-using System.Net;
-using System.Net.Mail;
-
 namespace ShopApi.Services;
 
-// Sends email through any SMTP provider (Brevo, Resend, Gmail app password...).
-// If SMTP_HOST is not set (your PC), the email is printed in the server console instead.
-public class EmailService(IConfiguration cfg, ILogger<EmailService> log)
+// Sends email through Brevo's HTTPS API (port 443).
+// Not SMTP: Render's free plan blocks outgoing SMTP ports (25/465/587), so SMTP just hangs there.
+// If BREVO_API_KEY is not set (your PC), the email is printed in the server console instead.
+public class EmailService(HttpClient http, IConfiguration cfg, ILogger<EmailService> log)
 {
     public async Task Send(string to, string subject, string body)
     {
-        var host = cfg["SMTP_HOST"];
-        if (string.IsNullOrEmpty(host))
+        var apiKey = cfg["BREVO_API_KEY"];
+        if (string.IsNullOrEmpty(apiKey))
         {
-            log.LogWarning("SMTP not configured. Email to {To}: {Body}", to, body);
+            log.LogWarning("BREVO_API_KEY not set. Email to {To}: {Body}", to, body);
             return;
         }
-        using var smtp = new SmtpClient(host, int.Parse(cfg["SMTP_PORT"] ?? "587"))
+
+        var req = new HttpRequestMessage(HttpMethod.Post, "https://api.brevo.com/v3/smtp/email")
         {
-            EnableSsl = true,
-            Credentials = new NetworkCredential(cfg["SMTP_USER"], cfg["SMTP_PASS"]),
+            Content = JsonContent.Create(new
+            {
+                sender = new { name = "Anand Cotton Sarees", email = cfg["EMAIL_FROM"] },   // must be a verified sender in Brevo
+                to = new[] { new { email = to } },
+                subject,
+                textContent = body,
+            }),
         };
-        await smtp.SendMailAsync(new MailMessage(cfg["SMTP_FROM"]!, to, subject, body));
+        req.Headers.Add("api-key", apiKey);
+
+        var res = await http.SendAsync(req);
+        if (!res.IsSuccessStatusCode)
+        {
+            // Brevo's reply says exactly what's wrong (bad key, unverified sender...). Log it; show the user a simple message.
+            log.LogError("Brevo send failed {Status}: {Reply}", (int)res.StatusCode, await res.Content.ReadAsStringAsync());
+            throw new AppError("We couldn't send the email right now. Please try again in a minute.");
+        }
     }
 }

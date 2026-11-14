@@ -56,7 +56,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(o =>
 // ---------- Our services (MVC: controllers call these) ----------
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<OrderService>();
-builder.Services.AddSingleton<EmailService>();
+builder.Services.AddHttpClient<EmailService>(c => c.Timeout = TimeSpan.FromSeconds(15));
 builder.Services.AddHttpClient<PaymentService>();
 builder.Services.AddHttpClient<ImageService>();
 builder.Services.AddControllers();
