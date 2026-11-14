@@ -18,8 +18,10 @@ npx --prefix frontend ng serve
 
 Open http://localhost:4200. Admin is `admin@shop.local` (the code shows on screen).
 
+**Live (2026-11-14):** https://anand-cotton-sarees.onrender.com: Render free (Singapore), Neon DB (Singapore), Cloudinary, Brevo SMTP, Razorpay **test** keys. Repo: https://github.com/prem-arvinth-g/Shop_API (public). Commits: no AI co-author lines.
+
 **Next:**
-1. Push to GitHub (`prem-arvinth-g/Shop_API`, private).
-2. Create the Neon, Cloudinary, Brevo and Razorpay test accounts, then deploy on Render with the README steps.
+1. Add the Razorpay webhook (`/api/orders/webhook`, event payment.captured) and set RAZORPAY_WEBHOOK_SECRET in Render.
+2. Do a full test purchase on the live site.
 3. The owner fills the `[brackets]` in `frontend/src/app/pages/policy/policy.ts` and adds the real products in /admin.
 4. Before changing models on the live DB: switch `Seed.cs` EnsureCreated to EF migrations.
