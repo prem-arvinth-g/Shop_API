@@ -17,7 +17,8 @@
               <span>{{ qty() }}</span>
               <button type="button" (click)="qty.set(qty() < p.stock ? qty() + 1 : qty())" aria-label="More">+</button>
             </div>
-            <button type="button" class="btn" (click)="addToCart(p)">Add to cart</button>
+            <button type="button" class="btn btn-outline" (click)="addToCart(p)">Add to cart</button>
+            <button type="button" class="btn" (click)="buyNow(p)">Buy now</button>
           </div>
           <a routerLink="/cart" class="link-more">Go to cart →</a>
         } @else {

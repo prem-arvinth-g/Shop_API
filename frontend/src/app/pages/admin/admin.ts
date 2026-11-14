@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Observable, firstValueFrom, forkJoin } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import { Category, ORDER_STATUSES, Order, Product, ProductInput } from '../../models/models';
 import { AdminService } from '../../services/admin.service';
 import { CatalogService } from '../../services/catalog.service';
@@ -25,6 +25,7 @@ export class Admin {
   protected categories = signal<Category[]>([]);
   protected orders = signal<Order[]>([]);
   protected statuses = ORDER_STATUSES;
+  protected loaded = signal(false);   // false until the first product list arrives
 
   // Product form: editingId null = closed, 0 = new product, >0 = editing that product
   protected editingId = signal<number | null>(null);
@@ -36,11 +37,13 @@ export class Admin {
     this.load();
   }
 
+  // Three separate requests: each tab fills in as soon as its own data arrives,
+  // instead of the whole page waiting for the slowest one.
   load() {
-    forkJoin({ p: this.admin.products(), c: this.catalog.categories(), o: this.admin.orders() }).subscribe({
-      next: ({ p, c, o }) => { this.products.set(p); this.categories.set(c); this.orders.set(o); },
-      error: e => this.toast.error(e),
-    });
+    const fail = (e: unknown) => this.toast.error(e);
+    this.admin.products().subscribe({ next: p => { this.products.set(p); this.loaded.set(true); }, error: fail });
+    this.catalog.categories().subscribe({ next: c => this.categories.set(c), error: fail });
+    this.admin.orders().subscribe({ next: o => this.orders.set(o), error: fail });
   }
 
   // ---------- Products ----------

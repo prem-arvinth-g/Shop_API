@@ -28,8 +28,9 @@ h3 { font-size: 1.25rem; }
 p { margin: 0 0 .75rem; }
 main { min-height: 60vh; }
 
-.container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 16px; }
-.section { padding: 32px 16px; }
+/* Wide screens use up to 1440px; side padding grows a little with the screen */
+.container { width: 100%; max-width: 1440px; margin: 0 auto; padding-inline: clamp(16px, 3vw, 40px); }
+.section { padding-block: 32px; }
 .narrow { max-width: 760px; }
 .muted { color: var(--muted); }
 .small { font-size: .875rem; }
@@ -56,7 +57,7 @@ main { min-height: 60vh; }
 
 /* ---------- Header ---------- */
 .site-header { position: sticky; top: 0; z-index: 10; background: var(--cream); border-bottom: 1px solid var(--line); }
-.header-row { display: grid; grid-template-columns: auto 1fr; grid-template-areas: "brand nav" "search search"; gap: 8px 12px; align-items: center; padding: 8px 16px 10px; }
+.header-row { display: grid; grid-template-columns: auto 1fr; grid-template-areas: "brand nav" "search search"; gap: 8px 12px; align-items: center; padding-block: 8px 10px; }
 .brand { grid-area: brand; display: flex; align-items: center; gap: 6px; }
 .brand-mark { height: 42px; width: auto; }
 .brand-text { height: 34px; width: auto; }
@@ -72,7 +73,7 @@ main { min-height: 60vh; }
   .brand-text { display: none; }   /* tiny phones: mark only, so the menu fits */
 }
 @media (min-width: 900px) {
-  .header-row { grid-template-columns: auto minmax(240px, 420px) 1fr; grid-template-areas: "brand search nav"; padding: 10px 16px; }
+  .header-row { grid-template-columns: auto minmax(240px, 420px) 1fr; grid-template-areas: "brand search nav"; padding-block: 10px; }
   .brand-mark { height: 52px; }
   .brand-text { height: 44px; }
 }
@@ -96,12 +97,12 @@ input.ng-invalid.ng-touched, textarea.ng-invalid.ng-touched { border-color: var(
 
 /* ---------- Hero ---------- */
 .hero { background: var(--cream); border-bottom: 1px solid var(--line); }
-.hero-grid { display: grid; gap: 24px; padding: 32px 16px; align-items: center; }
+.hero-grid { display: grid; gap: 24px; padding-block: 32px; align-items: center; }
 .hero-logo { width: auto; max-width: 80%; max-height: 260px; margin: 0 auto; mix-blend-mode: multiply; }
 .lead { font-size: 1.1rem; color: var(--muted); max-width: 34rem; }
 .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 1rem; }
 @media (min-width: 800px) {
-  .hero-grid { grid-template-columns: 1.1fr .9fr; padding: 56px 16px; }
+  .hero-grid { grid-template-columns: 1.1fr .9fr; padding-block: 56px; }
   .hero-logo { max-height: 380px; }
 }
 
@@ -122,6 +123,7 @@ input.ng-invalid.ng-touched, textarea.ng-invalid.ng-touched { border-color: var(
 .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 @media (min-width: 640px) { .product-grid { grid-template-columns: repeat(3, 1fr); gap: 18px; } }
 @media (min-width: 1000px) { .product-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 1400px) { .product-grid { grid-template-columns: repeat(5, 1fr); gap: 22px; } }
 
 .card { display: block; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; transition: box-shadow .2s, transform .2s; }
 .card:hover { box-shadow: 0 8px 24px rgba(18, 57, 30, .12); transform: translateY(-2px); }
@@ -140,7 +142,7 @@ input.ng-invalid.ng-touched, textarea.ng-invalid.ng-touched { border-color: var(
     var(--base, var(--green));
 }
 
-.chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 12px; scrollbar-width: thin; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }   /* wrap to new lines, no sideways scrolling */
 .chip { flex: none; padding: .4rem .9rem; border: 1px solid var(--line); border-radius: 999px; background: var(--paper); font-size: .88rem; white-space: nowrap; }
 .chip.active { background: var(--green); color: #fff; border-color: var(--green); }
 
@@ -200,7 +202,7 @@ input.ng-invalid.ng-touched, textarea.ng-invalid.ng-touched { border-color: var(
 
 /* ---------- Trust strip & footer ---------- */
 .trust { background: var(--paper); border-block: 1px solid var(--line); margin-top: 24px; }
-.trust-grid { display: grid; gap: 16px; padding: 28px 16px; text-align: center; }
+.trust-grid { display: grid; gap: 16px; padding-block: 28px; text-align: center; }
 @media (min-width: 700px) { .trust-grid { grid-template-columns: repeat(3, 1fr); } }
 
 .site-footer { background: var(--green); color: #efe6cf; margin-top: 40px; padding-top: 32px; }
@@ -211,7 +213,7 @@ input.ng-invalid.ng-touched, textarea.ng-invalid.ng-touched { border-color: var(
 .footer-mark { background: var(--cream); border-radius: 8px; padding: 6px; margin-bottom: 10px; }
 .site-footer .tagline { font: italic 600 1.2rem var(--serif); color: var(--gold-soft); }
 .site-footer .muted { color: #c9c0a8; }
-.copyright { font-size: .8rem; color: #c9c0a8; padding: 16px; margin-top: 24px; border-top: 1px solid rgba(255, 255, 255, .12); }
+.copyright { font-size: .8rem; color: #c9c0a8; padding-block: 16px; margin-top: 24px; border-top: 1px solid rgba(255, 255, 255, .12); }
 @media (min-width: 700px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr; } }
 
 /* ---------- Toast pop-up ---------- */
@@ -224,3 +226,20 @@ input.ng-invalid.ng-touched, textarea.ng-invalid.ng-touched { border-color: var(
 .toast-error { background: var(--maroon); }
 @keyframes toast-in { from { opacity: 0; transform: translate(-50%, 10px); } }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* ---------- Profile menu ---------- */
+.profile { position: relative; }
+.avatar {
+  width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--gold);
+  background: var(--green); color: #fff; font: 600 .95rem var(--sans); cursor: pointer;
+}
+.profile-menu {
+  position: absolute; right: 0; top: calc(100% + 8px); z-index: 20; min-width: 220px;
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, .14); padding: 8px; display: grid;
+}
+.profile-menu a, .profile-menu button { text-align: left; padding: 9px 10px; border-radius: 6px; text-decoration: none; color: var(--ink); background: none; border: 0; font: inherit; cursor: pointer; }
+.profile-menu a:hover, .profile-menu button:hover { background: var(--cream); }
+.profile-email { font-size: .8rem; color: var(--muted); padding: 6px 10px 10px; margin: 0 0 4px; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.profile-email strong { color: var(--ink); font-weight: 500; }
+.profile-menu .logout { color: var(--maroon); }

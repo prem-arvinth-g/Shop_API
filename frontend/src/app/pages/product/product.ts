@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, of, switchMap } from 'rxjs';
 import { Product } from '../../models/models';
 import { CatalogService } from '../../services/catalog.service';
@@ -19,6 +19,7 @@ export class ProductPage {
   private cart = inject(CartService);
   private toast = inject(ToastService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   // undefined = loading, null = not found
   protected product = toSignal(
@@ -29,5 +30,13 @@ export class ProductPage {
   addToCart(p: Product) {
     this.cart.add(p, this.qty());
     this.toast.show(`${p.name} added to your cart`);
+  }
+
+  // Put exactly the chosen quantity in the cart, then jump to checkout
+  // (the login guard sends them to /login first if needed, then back to /checkout).
+  buyNow(p: Product) {
+    this.cart.remove(p.id);
+    this.cart.add(p, this.qty());
+    this.router.navigate(['/checkout']);
   }
 }

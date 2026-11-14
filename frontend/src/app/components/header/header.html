@@ -12,16 +12,29 @@
 
     <nav class="nav" aria-label="Main">
       <a routerLink="/shop" routerLinkActive="active">Shop</a>
-      @if (auth.me(); as me) {
-        <a routerLink="/orders" routerLinkActive="active">Orders</a>
-        @if (me.isAdmin) { <a routerLink="/admin" routerLinkActive="active">Admin</a> }
-        <button type="button" class="link" (click)="logout()">Logout</button>
-      } @else {
-        <a routerLink="/login" routerLinkActive="active">Login</a>
-      }
       <a routerLink="/cart" routerLinkActive="active" class="cart-link">
         Cart <span class="badge">{{ cart.count() }}</span>
       </a>
+
+      @if (auth.me(); as me) {
+        <!-- Profile button: first letter of the email. Click opens the menu; clicking anywhere else closes it (header.ts). -->
+        <div class="profile">
+          <button type="button" class="avatar" (click)="toggleMenu($event)"
+                  [attr.aria-expanded]="menuOpen()" aria-haspopup="menu" aria-label="Account menu">
+            {{ me.email[0].toUpperCase() }}
+          </button>
+          @if (menuOpen()) {
+            <div class="profile-menu" role="menu" (click)="menuOpen.set(false)">
+              <p class="profile-email">Signed in as<br><strong>{{ me.email }}</strong></p>
+              <a routerLink="/orders" role="menuitem">My orders</a>
+              @if (me.isAdmin) { <a routerLink="/admin" role="menuitem">Admin dashboard</a> }
+              <button type="button" class="logout" role="menuitem" (click)="logout()">Logout</button>
+            </div>
+          }
+        </div>
+      } @else {
+        <a routerLink="/login" routerLinkActive="active">Login</a>
+      }
     </nav>
   </div>
 </header>
