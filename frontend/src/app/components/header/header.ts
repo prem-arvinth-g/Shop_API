@@ -1,6 +1,8 @@
-import { Component, HostListener, inject, signal } from '@angular/core';
+import { Component, HostListener, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { filter, map } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
 import { ToastService } from '../../services/toast.service';
@@ -17,6 +19,11 @@ export class Header {
   private toast = inject(ToastService);
   protected q = '';
   protected menuOpen = signal(false);
+
+  // Current page URL; login and checkout hide the search bar so the customer stays focused.
+  private url = toSignal(this.router.events.pipe(
+    filter(e => e instanceof NavigationEnd), map(e => (e as NavigationEnd).urlAfterRedirects)), { initialValue: this.router.url });
+  protected showSearch = computed(() => !/^\/(login|checkout)/.test(this.url()));
 
   search() {
     this.router.navigate(['/shop'], { queryParams: { q: this.q.trim() || null } });

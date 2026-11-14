@@ -1,14 +1,16 @@
 <header class="site-header">
-  <div class="container header-row">
+  <div class="container header-row" [class.no-search]="!showSearch()">
     <a routerLink="/" class="brand" aria-label="Anand Cotton Sarees home">
       <img src="brand/logo-mark.png" alt="" class="brand-mark" width="64" height="48">
       <img src="brand/logo-text.png" alt="Anand Cotton Sarees" class="brand-text" width="150" height="44">
     </a>
 
-    <form class="search" role="search" (ngSubmit)="search()">
-      <input type="search" name="q" [(ngModel)]="q" placeholder="Search sarees, colours…" aria-label="Search sarees">
-      <button type="submit" class="btn btn-sm">Search</button>
-    </form>
+    @if (showSearch()) {
+      <form class="search" role="search" (ngSubmit)="search()">
+        <input type="search" name="q" [(ngModel)]="q" placeholder="Search sarees, colours…" aria-label="Search sarees">
+        <button type="submit" class="btn btn-sm">Search</button>
+      </form>
+    }
 
     <nav class="nav" aria-label="Main">
       <a routerLink="/shop" routerLinkActive="active">Shop</a>
