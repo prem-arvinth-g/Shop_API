@@ -1,7 +1,12 @@
 <section class="container section narrow">
+  @if (cart.buyNow(); as b) {
+    <a [routerLink]="['/product', b.product.id]" class="back">← Back to {{ b.product.name }}</a>
+  } @else {
+    <a routerLink="/cart" class="back">← Back to cart</a>
+  }
   <h1 class="page-title">Checkout</h1>
 
-  @if (cart.items().length) {
+  @if (cart.checkoutItems().length) {
     <div class="checkout-grid">
       <form #f="ngForm" (ngSubmit)="f.valid && placeOrder()" class="form">
         <label>Full name
@@ -14,18 +19,18 @@
           <textarea name="address" [(ngModel)]="form.address" required maxlength="500" rows="4" autocomplete="street-address"></textarea>
         </label>
         <button type="submit" class="btn btn-block" [disabled]="busy() || f.invalid">
-          {{ busy() ? 'Please wait…' : 'Pay ₹' + (cart.total() | number) }}
+          {{ busy() ? 'Please wait…' : 'Pay ₹' + (cart.checkoutTotal() | number) }}
         </button>
         <p class="muted small">You'll pay securely on Razorpay with UPI, card or netbanking.</p>
       </form>
 
       <aside class="order-summary">
         <h3>Order summary</h3>
-        @for (i of cart.items(); track i.product.id) {
+        @for (i of cart.checkoutItems(); track i.product.id) {
           <div class="summary-line"><span>{{ i.product.name }} × {{ i.quantity }}</span><span>₹{{ i.product.price * i.quantity | number }}</span></div>
         }
         <div class="summary-line"><span>Shipping</span><span>Free</span></div>
-        <div class="summary-line total"><span>Total</span><strong>₹{{ cart.total() | number }}</strong></div>
+        <div class="summary-line total"><span>Total</span><strong>₹{{ cart.checkoutTotal() | number }}</strong></div>
       </aside>
     </div>
   } @else {

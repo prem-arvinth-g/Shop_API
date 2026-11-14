@@ -29,7 +29,7 @@
       <strong class="price-lg">₹{{ cart.total() | number }}</strong>
     </div>
     <p class="muted">Free shipping across India.</p>
-    <a routerLink="/checkout" class="btn btn-block">Checkout</a>
+    <a routerLink="/checkout" class="btn btn-block" (click)="cart.buyNow.set(null)">Checkout</a>
   } @else {
     <div class="empty">
       <p>Your cart is empty.</p>

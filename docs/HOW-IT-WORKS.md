@@ -39,13 +39,20 @@ In production, one Docker container serves both: the .NET app answers `/api/*` a
 No server call. The cart lives in the browser until checkout.
 
 1. **Click**: `frontend/src/app/pages/product/product.html:20`, `(click)="addToCart(p)"`
-2. **Component method**: `frontend/src/app/pages/product/product.ts:29`, `addToCart(p)` calls the cart service with the chosen quantity.
-3. **Cart service**: `frontend/src/app/services/cart.service.ts:18`, `add()` finds the item, adds the quantity, caps it at stock, and updates the `items` **signal**.
-4. **Auto-save**: `cart.service.ts:15`, an `effect()` notices `items` changed and writes it to `localStorage`, so the cart survives a page refresh.
-5. **Badge updates**: `frontend/src/app/components/header/header.html:23`, `{{ cart.count() }}`. `count` is a `computed()` signal built from `items`, so Angular redraws the number on its own.
+2. **Component method**: `frontend/src/app/pages/product/product.ts:30`, `addToCart(p)` calls the cart service with the chosen quantity.
+3. **Cart service**: `frontend/src/app/services/cart.service.ts:28`, `add()` finds the item, adds the quantity, caps it at stock, and updates the `items` **signal**.
+4. **Auto-save**: `cart.service.ts:24`, an `effect()` notices `items` changed and writes it to `localStorage`, so the cart survives a page refresh.
+5. **Badge updates**: `frontend/src/app/components/header/header.html:16`, `{{ cart.count() }}`. `count` is a `computed()` signal built from `items`, so Angular redraws the number on its own.
 6. **Pop-up**: `product.ts` calls `toast.show(...)`, which sets the signal in `frontend/src/app/services/toast.service.ts:10`. Then `frontend/src/app/app.html:31`, `@if (toast.message(); as m)`, draws the message. A timer clears it after 4 seconds.
 
 > **Signals** are values Angular watches. When one changes, every place in the HTML that reads it redraws automatically.
+
+### Buy now (one saree, without touching the cart)
+- `product.html` **Buy now** → `product.ts:37`, `buyNow()` → `cart.service.ts:50`, `startBuyNow()`, which stores just that saree in the `buyNow` signal (kept in sessionStorage), then goes to `/checkout`.
+- Checkout pays for `checkoutItems`: the Buy now saree only. The back link goes to that saree's page.
+- The cart's own **Checkout** button clears `buyNow`, so checkout pays for the whole cart and the back link goes to `/cart`.
+
+> **Why `zone.run`?** Razorpay's popup calls our `handler` from its own code, outside Angular's change tracking ("zone"). Without `this.zone.run(...)` (`checkout.ts:73`), the payment succeeds but the page may not redraw or navigate, and the customer stays stuck on checkout.
 
 ---
 
@@ -110,9 +117,10 @@ No server call. The cart lives in the browser until checkout.
 
 ## 5. Flow: **checkout and payment** (the important one)
 
-1. **Pay button**: `frontend/src/app/pages/checkout/checkout.html:6`, `(ngSubmit)="f.valid && placeOrder()"`. Name, 10-digit mobile and address are required.
-2. `frontend/src/app/pages/checkout/checkout.ts:30`, `placeOrder()`:
-   - **line 34**: `orders.create(...)` sends **only product ids + quantities**, never prices, via `frontend/src/app/services/order.service.ts:17` → `POST /api/orders`.
+1. **Pay button**: `frontend/src/app/pages/checkout/checkout.html:11`, `(ngSubmit)="f.valid && placeOrder()"`. Name, 10-digit mobile and address are required.
+2. `frontend/src/app/pages/checkout/checkout.ts:31`, `placeOrder()`:
+   - line 34 takes `cart.checkoutItems()`: the single **Buy now** saree if there is one, otherwise the whole cart (`cart.service.ts:20`)
+   - **line 35**: `orders.create(...)` sends **only product ids + quantities**, never prices, via `frontend/src/app/services/order.service.ts:17` → `POST /api/orders`.
 3. **Server, controller**: `backend/Controllers/OrdersController.cs:22`, `Create`. `[Authorize]` means you must be logged in. `[ApiController]` checks the DTO rules first (for example, the phone regex at `backend/Models/Dtos.cs:31`) and returns 400 if they fail.
 4. **Server, service**: `backend/Services/OrderService.cs:11`, `Create`:
    - line 14 loads the real products from the database
@@ -123,16 +131,16 @@ No server call. The cart lives in the browser until checkout.
    - line 29 calls `PaymentService.CreateOrder`
 5. **Razorpay order**: `backend/Services/PaymentService.cs:18`, which POSTs to `api.razorpay.com/v1/orders` (line 25) with the amount in paise and the secret key. Razorpay returns an id like `order_ABC`. That id is locked to the amount, so the popup can't charge a different total.
 6. The response `{ orderId, total, razorpayOrderId, razorpayKeyId }` goes back to the browser. Only the public **key id** is sent; the secret never leaves the server.
-7. **Popup**: `checkout.ts:36` calls `pay()`, then `checkout.ts:61`, `new Razorpay({...}).open()`. The customer pays by UPI or card **on Razorpay's own window**, so card numbers never touch our code.
-   - Success → `checkout.ts:70`, `handler`, receives `razorpay_payment_id` and `razorpay_signature`.
-   - Closed → `checkout.ts:75`, `ondismiss`. The order stays `Pending` and the error toast "Payment cancelled" is shown.
+7. **Popup**: `checkout.ts:37` calls `pay()`, then `checkout.ts:63`, `new Razorpay({...}).open()`. The customer pays by UPI or card **on Razorpay's own window**, so card numbers never touch our code.
+   - Success → `checkout.ts:73`, `handler`, receives `razorpay_payment_id` and `razorpay_signature`.
+   - Closed → `checkout.ts:78`, `ondismiss`. The order stays `Pending` and the error toast "Payment cancelled" is shown.
    - Test mode (no keys, your PC only): a `confirm()` box pretends to pay.
-8. **Verify**: `checkout.ts:42` → `order.service.ts:21` → `POST /api/orders/{id}/verify`.
+8. **Verify**: `checkout.ts:43` → `order.service.ts:21` → `POST /api/orders/{id}/verify`.
 9. **Server**: `backend/Controllers/OrdersController.cs:30`, `Verify`:
    - line 33: the order must belong to **this** user and match the Razorpay order id
    - line 34 calls `PaymentService.VerifyPayment`, then `PaymentService.cs:45`, `SignatureMatches`: **HMAC-SHA256(order_id|payment_id, secret)** must equal the signature. Only Razorpay and our server know the secret, so a fake "paid" message can't pass.
    - line 37 calls `OrderService.MarkPaid` at `OrderService.cs:35`: status becomes `Paid`, the payment id is saved, and stock goes down (line 45). Line 38 makes it **safe to run twice**.
-10. **Back in the browser**: `checkout.ts:43` empties the cart, then the toast shows "Payment successful! Order #7 is confirmed.", then `checkout.ts:45` navigates to `/orders/7`. There, `frontend/src/app/pages/orders/orders.html:3` shows the green thank-you banner.
+10. **Back in the browser**: `checkout.ts:44`, `finishCheckout()`, removes what was bought: the Buy now item, or the whole cart. The bought sarees now live in **My orders** on the server. Then the toast shows "Payment successful! Order #7 is confirmed.", and `checkout.ts:47` navigates to `/orders/7` with `replaceUrl`, so the browser's Back button skips checkout. There, `frontend/src/app/pages/orders/orders.html:3` shows the green thank-you banner.
 
 ### Safety net: webhook
 If the customer pays and closes the tab before step 8, the browser never calls `/verify`. Razorpay also calls our server directly at `backend/Controllers/OrdersController.cs:58`, `Webhook`:

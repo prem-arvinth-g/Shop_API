@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, NgZone, inject, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -22,6 +22,7 @@ export class CheckoutPage {
   private auth = inject(AuthService);
   private toast = inject(ToastService);
   private router = inject(Router);
+  private zone = inject(NgZone);
 
   protected form = { customerName: '', phone: '', address: '' };
   protected busy = signal(false);
@@ -30,7 +31,7 @@ export class CheckoutPage {
   async placeOrder() {
     this.busy.set(true);
     try {
-      const items = this.cart.items().map(i => ({ productId: i.product.id, quantity: i.quantity }));
+      const items = this.cart.checkoutItems().map(i => ({ productId: i.product.id, quantity: i.quantity }));
       const checkout = await firstValueFrom(this.orders.create({ ...this.form, items }));   // POST /api/orders
 
       const payment = await this.pay(checkout);                                             // popup
@@ -40,9 +41,10 @@ export class CheckoutPage {
       }
 
       const order = await firstValueFrom(this.orders.verify(checkout.orderId, payment));    // POST /api/orders/{id}/verify
-      this.cart.clear();
+      this.cart.finishCheckout();      // bought items leave the cart; they're in "My orders" now
       this.toast.show(`Payment successful! Order #${order.id} is confirmed.`);
-      this.router.navigate(['/orders', order.id]);
+      // replaceUrl: the browser's Back button skips this checkout page instead of returning to it.
+      this.router.navigate(['/orders', order.id], { replaceUrl: true });
     } catch (err) {
       this.toast.error(err);
     } finally {
@@ -67,12 +69,13 @@ export class CheckoutPage {
         description: `Order #${c.orderId}`,
         prefill: { name: this.form.customerName, contact: this.form.phone, email: this.auth.me()?.email },
         theme: { color: '#12391e' },
-        handler: (r: any) => resolve({
+        // Razorpay calls these from outside Angular; zone.run() brings them back in so the page redraws and navigates.
+        handler: (r: any) => this.zone.run(() => resolve({
           razorpayOrderId: r.razorpay_order_id,
           razorpayPaymentId: r.razorpay_payment_id,
           razorpaySignature: r.razorpay_signature,
-        }),
-        modal: { ondismiss: () => resolve(null) },
+        })),
+        modal: { ondismiss: () => this.zone.run(() => resolve(null)) },
       }).open();
     });
   }

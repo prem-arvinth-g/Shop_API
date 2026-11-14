@@ -32,11 +32,10 @@ export class ProductPage {
     this.toast.show(`${p.name} added to your cart`);
   }
 
-  // Put exactly the chosen quantity in the cart, then jump to checkout
+  // Checkout just this saree, leaving the cart as it is
   // (the login guard sends them to /login first if needed, then back to /checkout).
   buyNow(p: Product) {
-    this.cart.remove(p.id);
-    this.cart.add(p, this.qty());
+    this.cart.startBuyNow(p, this.qty());
     this.router.navigate(['/checkout']);
   }
 }
