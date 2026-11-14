@@ -1,0 +1,28 @@
+<section class="container section">
+  <h1 class="page-title">{{ title() }}</h1>
+
+  <div class="chips" role="list">
+    <a routerLink="/shop" class="chip" [class.active]="!filter().category && !filter().q" role="listitem">All</a>
+    @for (c of categories(); track c.id) {
+      <a routerLink="/shop" [queryParams]="{ category: c.id }" class="chip" [class.active]="filter().category === c.id" role="listitem">{{ c.name }}</a>
+    }
+  </div>
+
+  @if (products(); as list) {
+    @if (list.length) {
+      <p class="muted">{{ list.length }} sarees</p>
+      <div class="product-grid">
+        @for (p of list; track p.id) {
+          <app-product-card [product]="p" />
+        }
+      </div>
+    } @else {
+      <div class="empty">
+        <p>No sarees found. Try another colour or category.</p>
+        <a routerLink="/shop" class="btn">See all sarees</a>
+      </div>
+    }
+  } @else {
+    <p class="muted">Loading…</p>
+  }
+</section>

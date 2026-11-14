@@ -1,0 +1,35 @@
+# Render "Blueprint": Render reads this file and creates the web service from the Dockerfile.
+# Secrets are NOT stored here (sync: false). You type them once in the Render dashboard.
+services:
+  - type: web
+    name: anand-cotton-sarees
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/categories
+    envVars:
+      - key: ConnectionStrings__Postgres     # from Neon (".NET" connection string format)
+        sync: false
+      - key: ADMIN_EMAILS                    # e.g. owner@gmail.com (comma separated for more)
+        sync: false
+      - key: RAZORPAY_KEY_ID                 # rzp_test_... first, rzp_live_... after KYC
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: SMTP_HOST                       # e.g. smtp-relay.brevo.com
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM                       # e.g. Anand Cotton Sarees <orders@yourdomain.in>
+        sync: false

@@ -1,0 +1,25 @@
+<section class="container section auth-box">
+  <h1 class="page-title">Login</h1>
+
+  @if (step() === 'email') {
+    <form #f="ngForm" (ngSubmit)="f.valid && sendCode()" class="form">
+      <p class="muted">No password needed. We'll email you a 6-digit code.</p>
+      <label>Email
+        <input type="email" name="email" [(ngModel)]="email" required email autocomplete="email">
+      </label>
+      <button type="submit" class="btn btn-block" [disabled]="busy() || f.invalid">Send code</button>
+    </form>
+  } @else {
+    <form #f="ngForm" (ngSubmit)="f.valid && verify()" class="form">
+      <p class="muted">Enter the code sent to <strong>{{ email }}</strong>. It expires in 5 minutes.</p>
+      @if (devCode()) {
+        <p class="dev-note">Test mode: your code is <strong>{{ devCode() }}</strong></p>
+      }
+      <label>6-digit code
+        <input name="code" [(ngModel)]="code" required pattern="[0-9]{6}" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
+      </label>
+      <button type="submit" class="btn btn-block" [disabled]="busy() || f.invalid">Verify &amp; log in</button>
+      <button type="button" class="link" (click)="step.set('email')">Use a different email</button>
+    </form>
+  }
+</section>

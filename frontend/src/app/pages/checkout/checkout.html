@@ -1,0 +1,37 @@
+<section class="container section narrow">
+  <h1 class="page-title">Checkout</h1>
+
+  @if (cart.items().length) {
+    <div class="checkout-grid">
+      <form #f="ngForm" (ngSubmit)="f.valid && placeOrder()" class="form">
+        <label>Full name
+          <input name="customerName" [(ngModel)]="form.customerName" required maxlength="100" autocomplete="name">
+        </label>
+        <label>Mobile number
+          <input name="phone" [(ngModel)]="form.phone" required pattern="[6-9][0-9]{9}" inputmode="numeric" maxlength="10" autocomplete="tel-national" placeholder="10-digit mobile">
+        </label>
+        <label>Delivery address (with pincode)
+          <textarea name="address" [(ngModel)]="form.address" required maxlength="500" rows="4" autocomplete="street-address"></textarea>
+        </label>
+        <button type="submit" class="btn btn-block" [disabled]="busy() || f.invalid">
+          {{ busy() ? 'Please wait…' : 'Pay ₹' + (cart.total() | number) }}
+        </button>
+        <p class="muted small">You'll pay securely on Razorpay with UPI, card or netbanking.</p>
+      </form>
+
+      <aside class="order-summary">
+        <h3>Order summary</h3>
+        @for (i of cart.items(); track i.product.id) {
+          <div class="summary-line"><span>{{ i.product.name }} × {{ i.quantity }}</span><span>₹{{ i.product.price * i.quantity | number }}</span></div>
+        }
+        <div class="summary-line"><span>Shipping</span><span>Free</span></div>
+        <div class="summary-line total"><span>Total</span><strong>₹{{ cart.total() | number }}</strong></div>
+      </aside>
+    </div>
+  } @else {
+    <div class="empty">
+      <p>Your cart is empty.</p>
+      <a routerLink="/shop" class="btn">Start shopping</a>
+    </div>
+  }
+</section>

@@ -1,0 +1,22 @@
+# Build output
+bin/
+obj/
+node_modules/
+dist/
+.angular/
+
+# Local data: test database and uploaded photos
+*.db
+*.db-shm
+*.db-wal
+backend/wwwroot/
+
+# Secrets: never commit keys
+.env
+*.env
+appsettings.*.local.json
+
+# Tools
+graphify-out/
+.vs/
+*.user

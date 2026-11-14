@@ -1,0 +1,33 @@
+<app-header />
+
+<main>
+  <router-outlet />
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <img src="brand/logo-mark.png" alt="" class="footer-mark" width="110" height="83">
+      <p class="tagline">Rooted in Tradition. Woven for You.</p>
+      <p class="muted">Jakkampatti &bull; Andipatti</p>
+    </div>
+    <nav aria-label="Help">
+      <h4>Help</h4>
+      <a routerLink="/policy/shipping">Shipping</a>
+      <a routerLink="/policy/refund">Returns &amp; refunds</a>
+      <a routerLink="/policy/contact">Contact us</a>
+    </nav>
+    <nav aria-label="Legal">
+      <h4>Legal</h4>
+      <a routerLink="/policy/privacy">Privacy policy</a>
+      <a routerLink="/policy/terms">Terms &amp; conditions</a>
+      <a href="https://www.instagram.com/anandcottonsarees" target="_blank" rel="noopener">Instagram</a>
+    </nav>
+  </div>
+  <p class="container copyright">&copy; {{ year }} Anand Cotton Sarees. Payments secured by Razorpay.</p>
+</footer>
+
+<!-- The pop-up message. ToastService.show() fills it; it disappears after 4 seconds. -->
+@if (toast.message(); as m) {
+  <div class="toast" [class.toast-error]="m.type === 'error'" role="status" aria-live="polite">{{ m.text }}</div>
+}

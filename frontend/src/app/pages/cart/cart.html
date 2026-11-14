@@ -1,0 +1,39 @@
+<section class="container section narrow">
+  <h1 class="page-title">Your cart</h1>
+
+  @if (cart.items().length) {
+    <ul class="cart-list">
+      @for (i of cart.items(); track i.product.id) {
+        <li class="cart-row">
+          <a [routerLink]="['/product', i.product.id]" class="cart-thumb">
+            <app-product-image [src]="i.product.imageUrl" [alt]="i.product.name" [seed]="i.product.id" />
+          </a>
+          <div class="cart-info">
+            <a [routerLink]="['/product', i.product.id]"><strong>{{ i.product.name }}</strong></a>
+            <span class="muted">₹{{ i.product.price | number }} each</span>
+            <div class="qty">
+              <button type="button" (click)="cart.setQuantity(i.product.id, i.quantity - 1)" aria-label="Less">−</button>
+              <span>{{ i.quantity }}</span>
+              <button type="button" (click)="cart.setQuantity(i.product.id, i.quantity + 1)" aria-label="More">+</button>
+            </div>
+          </div>
+          <div class="cart-price">
+            <strong>₹{{ i.product.price * i.quantity | number }}</strong>
+            <button type="button" class="link" (click)="cart.remove(i.product.id)">Remove</button>
+          </div>
+        </li>
+      }
+    </ul>
+    <div class="summary">
+      <span>Total</span>
+      <strong class="price-lg">₹{{ cart.total() | number }}</strong>
+    </div>
+    <p class="muted">Free shipping across India.</p>
+    <a routerLink="/checkout" class="btn btn-block">Checkout</a>
+  } @else {
+    <div class="empty">
+      <p>Your cart is empty.</p>
+      <a routerLink="/shop" class="btn">Start shopping</a>
+    </div>
+  }
+</section>

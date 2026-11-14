@@ -1,0 +1,33 @@
+<section class="container section narrow">
+  @if (id()) {
+    <div class="success-banner">
+      <h2>Thank you! Order #{{ id() }} is confirmed.</h2>
+      <p>We'll pack it with care and message you on your mobile when it ships.</p>
+    </div>
+  }
+
+  <h1 class="page-title">My orders</h1>
+
+  @if (orders(); as list) {
+    @for (o of list; track o.id) {
+      <article class="order-card" [class.highlight]="'' + o.id === id()">
+        <header>
+          <strong>Order #{{ o.id }}</strong>
+          <span class="status status-{{ o.status.toLowerCase() }}">{{ o.status }}</span>
+        </header>
+        <p class="muted">{{ o.createdAt | date: 'd MMM y, h:mm a' }}</p>
+        @for (i of o.items; track $index) {
+          <div class="summary-line"><span>{{ i.productName }} × {{ i.quantity }}</span><span>₹{{ i.price * i.quantity | number }}</span></div>
+        }
+        <div class="summary-line total"><span>Total</span><strong>₹{{ o.total | number }}</strong></div>
+      </article>
+    } @empty {
+      <div class="empty">
+        <p>You haven't ordered anything yet.</p>
+        <a routerLink="/shop" class="btn">Start shopping</a>
+      </div>
+    }
+  } @else {
+    <p class="muted">Loading…</p>
+  }
+</section>

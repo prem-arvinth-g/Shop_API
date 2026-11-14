@@ -1,0 +1,27 @@
+<header class="site-header">
+  <div class="container header-row">
+    <a routerLink="/" class="brand" aria-label="Anand Cotton Sarees home">
+      <img src="brand/logo-mark.png" alt="" class="brand-mark" width="64" height="48">
+      <img src="brand/logo-text.png" alt="Anand Cotton Sarees" class="brand-text" width="150" height="44">
+    </a>
+
+    <form class="search" role="search" (ngSubmit)="search()">
+      <input type="search" name="q" [(ngModel)]="q" placeholder="Search sarees, colours…" aria-label="Search sarees">
+      <button type="submit" class="btn btn-sm">Search</button>
+    </form>
+
+    <nav class="nav" aria-label="Main">
+      <a routerLink="/shop" routerLinkActive="active">Shop</a>
+      @if (auth.me(); as me) {
+        <a routerLink="/orders" routerLinkActive="active">Orders</a>
+        @if (me.isAdmin) { <a routerLink="/admin" routerLinkActive="active">Admin</a> }
+        <button type="button" class="link" (click)="logout()">Logout</button>
+      } @else {
+        <a routerLink="/login" routerLinkActive="active">Login</a>
+      }
+      <a routerLink="/cart" routerLinkActive="active" class="cart-link">
+        Cart <span class="badge">{{ cart.count() }}</span>
+      </a>
+    </nav>
+  </div>
+</header>

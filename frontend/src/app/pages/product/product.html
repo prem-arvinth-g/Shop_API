@@ -1,0 +1,36 @@
+<section class="container section">
+  @if (product(); as p) {
+    <a [routerLink]="['/shop']" [queryParams]="{ category: p.categoryId }" class="back">← {{ p.categoryName }}</a>
+    <div class="product-detail">
+      <app-product-image [src]="p.imageUrl" [alt]="p.name" [seed]="p.id" />
+      <div>
+        <p class="eyebrow">{{ p.categoryName }}</p>
+        <h1>{{ p.name }}</h1>
+        <p class="price price-lg">₹{{ p.price | number }}</p>
+        <p class="description">{{ p.description }}</p>
+
+        @if (p.stock > 0) {
+          <p class="muted">{{ p.stock <= 3 ? 'Only ' + p.stock + ' left' : 'In stock' }}</p>
+          <div class="buy-row">
+            <div class="qty" aria-label="Quantity">
+              <button type="button" (click)="qty.set(qty() > 1 ? qty() - 1 : 1)" aria-label="Less">−</button>
+              <span>{{ qty() }}</span>
+              <button type="button" (click)="qty.set(qty() < p.stock ? qty() + 1 : qty())" aria-label="More">+</button>
+            </div>
+            <button type="button" class="btn" (click)="addToCart(p)">Add to cart</button>
+          </div>
+          <a routerLink="/cart" class="link-more">Go to cart →</a>
+        } @else {
+          <p class="sold-out">Sold out</p>
+        }
+      </div>
+    </div>
+  } @else if (product() === null) {
+    <div class="empty">
+      <p>This saree is no longer available.</p>
+      <a routerLink="/shop" class="btn">Back to shop</a>
+    </div>
+  } @else {
+    <p class="muted">Loading…</p>
+  }
+</section>

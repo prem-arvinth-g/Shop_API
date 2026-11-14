@@ -1,0 +1,76 @@
+// The shapes of the JSON the API sends. They mirror backend/Models/Dtos.cs.
+
+export interface Category {
+  id: number;
+  name: string;
+  imageUrl: string | null;
+  productCount: number;
+}
+
+export interface Product {
+  id: number;
+  name: string;
+  description: string;
+  price: number;        // whole rupees
+  stock: number;
+  imageUrl: string | null;
+  isActive: boolean;
+  categoryId: number;
+  categoryName: string;
+}
+
+export interface ProductInput {
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+  imageUrl: string | null;
+  isActive: boolean;
+  categoryId: number;
+}
+
+export interface CartItem {
+  product: Product;
+  quantity: number;
+}
+
+export interface Me {
+  id: number;
+  email: string;
+  isAdmin: boolean;
+}
+
+// What the server returns after creating an order: enough to open the Razorpay popup.
+export interface Checkout {
+  orderId: number;
+  total: number;
+  razorpayOrderId: string;
+  razorpayKeyId: string | null;   // null = test mode on your PC
+}
+
+export interface PaymentResult {
+  razorpayOrderId: string;
+  razorpayPaymentId: string;
+  razorpaySignature: string;
+}
+
+export interface OrderItem {
+  productId: number;
+  productName: string;
+  price: number;
+  quantity: number;
+}
+
+export interface Order {
+  id: number;
+  customerName: string;
+  phone: string;
+  address: string;
+  total: number;
+  status: string;
+  createdAt: string;
+  email: string | null;
+  items: OrderItem[];
+}
+
+export const ORDER_STATUSES = ['Pending', 'Paid', 'Shipped', 'Delivered', 'Cancelled'];
