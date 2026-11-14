@@ -59,8 +59,8 @@ No server call. The cart lives in the browser until checkout.
 ## 3. Flow: **search** for "green"
 
 1. **Submit**: `frontend/src/app/components/header/header.html:8`, `(ngSubmit)="search()"`
-2. `frontend/src/app/components/header/header.ts:20`, `search()` navigates to `/shop?q=green`. The URL holds the filter.
-3. `frontend/src/app/pages/shop/shop.ts:26` watches the URL's query params. `switchMap` calls the API each time they change and cancels any older request still in flight.
+2. `frontend/src/app/components/header/header.ts`, `search()`, navigates to `/?q=green#shop`. The URL holds the filter, and `#shop` scrolls down to the sarees section of the home page. There is no separate shop page; `/shop` just redirects to `/`.
+3. `frontend/src/app/pages/shop/shop.ts` (the sarees section, shown inside `pages/home/home.html`) watches the URL's query params. `switchMap` calls the API each time they change and cancels any older request still in flight.
 4. `frontend/src/app/services/catalog.service.ts:14`, `products()` sends `GET /api/products?q=green`.
 5. **Server**: `backend/Controllers/CatalogController.cs:22`, `Products(categoryId, q)`. EF Core builds the SQL `WHERE`. Line 28 lowercases both sides so the search ignores capital letters on both SQLite and PostgreSQL.
 6. Line 43, `ToDto`, picks only the needed columns and joins the category name in **one** SQL query.
@@ -167,7 +167,17 @@ Customer's bank/UPI → **Razorpay** (holds it) → the shop's bank account, set
 
 ---
 
-## 7. Errors: how a server problem becomes a red pop-up
+## 7. The moving strip (banner) and one-page home
+
+- **Home page** (`pages/home/home.html`): hero with logo and social icons → `<app-marquee />` (the moving strip) → `<app-shop />` (all sarees with filters) → trust strip.
+- **"Shop" links** use `routerLink="/" fragment="shop"`. `app.config.ts` turns on `anchorScrolling`, so Angular scrolls to `id="shop"`. `app.ts` sets the scroll offset to the header's height, so the heading isn't hidden under the sticky header. `onSameUrlNavigation: 'reload'` makes a second click scroll again.
+- **Strip data**: `components/marquee/marquee.ts` calls `GET /api/banners` (`CatalogController.Banners`), which returns only items marked shown, sorted by Order.
+- **The endless motion is pure CSS**: the list is drawn **twice** side by side, and the `marquee` animation (`styles.css`) slides the track left by exactly **50%**. At that point copy 2 sits where copy 1 started, so the loop restarts invisibly. Hovering pauses it so people can click.
+- **Admin > Banner tab** (`pages/admin/admin.html`): `POST/PUT/DELETE /api/admin/banners` (`AdminController`). Links must start with `https://` or `/` (`BannerInput` in `Dtos.cs`), so nobody can save a `javascript:` link that runs code when clicked.
+- **Social links**: `models/site.ts` (`SOCIAL_LINKS`). Change a link there, commit and push.
+- **A new table on a live DB**: `Seed.cs`, `AddMissingTables`, asks EF for the full CREATE script, finds the tables the database doesn't have yet (like `Banners`), and runs only their `CREATE TABLE` / `CREATE INDEX` lines. Existing tables and data are untouched; a test proves it (`tests/OrderServiceTests.cs`, `SeedTests`).
+
+## 8. Errors: how a server problem becomes a red pop-up
 
 - `backend/Services/AppError.cs` covers mistakes the user can fix.
 - `backend/Program.cs:75` catches them → HTTP 400 `{ "message": "Only 2 left of ..." }`.
@@ -177,14 +187,14 @@ Customer's bank/UPI → **Razorpay** (holds it) → the shop's bank account, set
   - validation 400 → the first field error
   - AppError → its message
 
-## 8. Database
+## 9. Database
 
 - `backend/Data/AppDb.cs:7`: one `DbSet` per table (Categories, Products, Users, OtpCodes, Orders, OrderItems).
 - `OnModelCreating` (line 16) adds a unique email index, and blocks deleting a category that still has products.
 - `backend/Program.cs:19` chooses the database: `ConnectionStrings__Postgres` set means PostgreSQL (Neon); otherwise the `shop.db` SQLite file on your PC. Production **refuses to start** without Postgres, because a cloud disk is wiped on every deploy.
 - `backend/Data/Seed.cs` creates the tables and the 10 sample categories × 3 sarees on first run.
 
-## 9. Security checklist, and where each one lives
+## 10. Security checklist, and where each one lives
 
 | Threat | Defence | Where |
 |---|---|---|
@@ -199,9 +209,9 @@ Customer's bank/UPI → **Razorpay** (holds it) → the shop's bank account, set
 | Leaked keys | Keys only in environment variables; `.gitignore` blocks `.env` | `render.yaml`, `.gitignore` |
 | SQL injection | EF Core always sends parameters, never glued strings | all LINQ queries |
 
-## 10. Known shortcuts (fine for now, fix as the shop grows)
+## 11. Known shortcuts (fine for now, fix as the shop grows)
 
 These are marked with `shortcut:` comments in the code.
-- `Seed.cs:10`: `EnsureCreated` can't change existing tables. Move to EF migrations before changing a model on the live database.
+- `Seed.cs`: `EnsureCreated` + `AddMissingTables` can add **new tables** but not **new columns** to an existing table. Move to EF migrations before adding a field to an existing model on the live database.
 - `OrderService.cs`: stock is reduced at payment, not reserved at checkout. Two people could both pay for the last saree.
 - `Program.cs`: cookie keys live in the container, so customers log in again after each deploy.

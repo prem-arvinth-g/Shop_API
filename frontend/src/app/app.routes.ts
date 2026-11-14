@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { adminGuard, loginGuard } from './services/guards';
 import { Home } from './pages/home/home';
-import { Shop } from './pages/shop/shop';
 import { ProductPage } from './pages/product/product';
 import { Cart } from './pages/cart/cart';
 import { CheckoutPage } from './pages/checkout/checkout';
@@ -12,7 +11,7 @@ import { Policy } from './pages/policy/policy';
 // URL -> page component. Admin is lazy-loaded so customers never download its code.
 export const routes: Routes = [
   { path: '', component: Home, title: 'Anand Cotton Sarees' },
-  { path: 'shop', component: Shop, title: 'Shop | Anand Cotton Sarees' },
+  { path: 'shop', redirectTo: '' },   // old /shop?category=3 links land on the home page's sarees section
   { path: 'product/:id', component: ProductPage, title: 'Saree | Anand Cotton Sarees' },
   { path: 'cart', component: Cart, title: 'Cart | Anand Cotton Sarees' },
   { path: 'checkout', component: CheckoutPage, canActivate: [loginGuard], title: 'Checkout | Anand Cotton Sarees' },

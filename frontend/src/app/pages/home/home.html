@@ -5,40 +5,18 @@
       <h1>Rooted in Tradition.<br>Woven for You.</h1>
       <p class="lead">Soft, breathable cotton sarees from the looms of Jakkampatti and Andipatti, delivered across India.</p>
       <div class="hero-actions">
-        <a routerLink="/shop" class="btn">Shop the collection</a>
-        <a href="https://www.instagram.com/anandcottonsarees" target="_blank" rel="noopener" class="btn btn-outline">See us on Instagram</a>
+        <a routerLink="/" fragment="shop" class="btn">Shop the collection</a>
       </div>
+      <p class="muted small follow-label">Follow us</p>
+      <app-social-links />
     </div>
-    <img src="brand/logo-main.jpg" alt="Anand Cotton Sarees" class="hero-logo" width="820" height="745">
+    <img src="brand/logo-main.png" alt="Anand Cotton Sarees" class="hero-logo" width="620" height="563">
   </div>
 </section>
 
-<section class="container section">
-  <div class="section-head">
-    <h2>Shop by category</h2>
-    <a routerLink="/shop" class="link-more">View all</a>
-  </div>
-  <div class="category-grid">
-    @for (c of categories(); track c.id; let i = $index) {
-      <a class="category-tile" [routerLink]="['/shop']" [queryParams]="{ category: c.id }" [class]="'tone-' + (i % 4)">
-        <span class="category-name">{{ c.name }}</span>
-        <span class="category-count">{{ c.productCount }} sarees</span>
-      </a>
-    }
-  </div>
-</section>
+<app-marquee />
 
-<section class="container section">
-  <div class="section-head">
-    <h2>New arrivals</h2>
-    <a routerLink="/shop" class="link-more">See more</a>
-  </div>
-  <div class="product-grid">
-    @for (p of featured(); track p.id) {
-      <app-product-card [product]="p" />
-    }
-  </div>
-</section>
+<app-shop />
 
 <section class="trust">
   <div class="container trust-grid">

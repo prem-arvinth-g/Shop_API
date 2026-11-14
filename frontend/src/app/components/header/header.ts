@@ -26,7 +26,7 @@ export class Header {
   protected showSearch = computed(() => !/^\/(login|checkout)/.test(this.url()));
 
   search() {
-    this.router.navigate(['/shop'], { queryParams: { q: this.q.trim() || null } });
+    this.router.navigate(['/'], { queryParams: { q: this.q.trim() || null }, fragment: 'shop' });
   }
 
   toggleMenu(event: Event) {

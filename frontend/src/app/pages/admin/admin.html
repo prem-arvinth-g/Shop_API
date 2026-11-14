@@ -5,6 +5,7 @@
     <button type="button" role="tab" [class.active]="tab() === 'products'" (click)="tab.set('products')">Products ({{ products().length }})</button>
     <button type="button" role="tab" [class.active]="tab() === 'categories'" (click)="tab.set('categories')">Categories ({{ categories().length }})</button>
     <button type="button" role="tab" [class.active]="tab() === 'orders'" (click)="tab.set('orders')">Orders ({{ orders().length }})</button>
+    <button type="button" role="tab" [class.active]="tab() === 'banner'" (click)="tab.set('banner')">Banner ({{ banners().length }})</button>
   </div>
 
   <!-- ================= PRODUCTS ================= -->
@@ -112,6 +113,58 @@
     } @empty {
       <p class="muted">No orders yet.</p>
     }
+    </div>
+  }
+  <!-- ================= BANNER (moving strip on the home page) ================= -->
+  @if (tab() === 'banner') {
+    <p class="muted">These items slide across the home page non-stop. Add a picture, a short message, or a link (Instagram, a sale, a category).</p>
+    @if (bannerEditingId() !== null) {
+      <form #bf="ngForm" (ngSubmit)="bf.valid && saveBanner()" class="form admin-form">
+        <h3>{{ bannerEditingId() ? 'Edit banner item' : 'New banner item' }}</h3>
+        <label>Text <input name="text" [(ngModel)]="bannerForm.text" required maxlength="120" placeholder="e.g. Diwali sale: 10% off all Chettinad sarees"></label>
+        <label>Link (optional)
+          <input name="link" [(ngModel)]="bannerForm.link" maxlength="500" pattern="(https://|/).*" placeholder="https://www.instagram.com/...  or  /?category=3#shop">
+        </label>
+        <div class="form-row">
+          <label>Order (smaller = first) <input type="number" name="sortOrder" [(ngModel)]="bannerForm.sortOrder"></label>
+          <label class="check"><input type="checkbox" name="isActive" [(ngModel)]="bannerForm.isActive"> Show on the site</label>
+        </div>
+        <label>Picture (optional)
+          <input type="file" accept="image/jpeg,image/png,image/webp" (change)="upload($event, bannerForm)">
+        </label>
+        @if (uploading()) { <p class="muted">Uploading…</p> }
+        @if (bannerForm.imageUrl) {
+          <div class="admin-preview"><img [src]="bannerForm.imageUrl" alt="Preview"></div>
+          <button type="button" class="link danger" (click)="bannerForm.imageUrl = null">Remove picture</button>
+        }
+        <div class="form-actions">
+          <button type="submit" class="btn" [disabled]="bf.invalid || uploading()">Save</button>
+          <button type="button" class="btn btn-outline" (click)="bannerEditingId.set(null)">Cancel</button>
+        </div>
+      </form>
+    } @else {
+      <button type="button" class="btn" (click)="newBanner()">+ Add banner item</button>
+    }
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th></th><th>Text</th><th>Link</th><th>Order</th><th>Shown</th><th></th></tr></thead>
+        <tbody>
+          @for (b of banners(); track b.id) {
+            <tr>
+              <td class="thumb-cell">@if (b.imageUrl) { <img [src]="b.imageUrl" alt="" class="product-img"> }</td>
+              <td>{{ b.text }}</td>
+              <td class="small muted">{{ b.link || '—' }}</td>
+              <td>{{ b.sortOrder }}</td>
+              <td>{{ b.isActive ? 'Yes' : 'No' }}</td>
+              <td class="actions">
+                <button type="button" class="link" (click)="editBanner(b)">Edit</button>
+                <button type="button" class="link danger" (click)="removeBanner(b)">Delete</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
   }
 </section>

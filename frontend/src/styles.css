@@ -104,7 +104,7 @@ input.ng-invalid.ng-touched, textarea.ng-invalid.ng-touched { border-color: var(
 /* ---------- Hero ---------- */
 .hero { background: var(--cream); border-bottom: 1px solid var(--line); }
 .hero-grid { display: grid; gap: 24px; padding-block: 32px; align-items: center; }
-.hero-logo { width: auto; max-width: 80%; max-height: 260px; margin: 0 auto; mix-blend-mode: multiply; }
+.hero-logo { width: auto; height: auto; max-width: 80%; max-height: 260px; margin: 0 auto; }
 .lead { font-size: 1.1rem; color: var(--muted); max-width: 34rem; }
 .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 1rem; }
 @media (min-width: 800px) {
@@ -256,3 +256,34 @@ input.ng-invalid.ng-touched, textarea.ng-invalid.ng-touched { border-color: var(
 .profile-menu .logout { color: var(--maroon); }
 .order-summary .summary { border-top: 0; padding-top: 0; }
 @media (min-width: 900px) { .header-row.no-search { grid-template-areas: "brand . nav"; } }   /* desktop: keep the menu on the right */
+
+/* ---------- Sarees section on the home page ---------- */
+#shop { scroll-margin-top: 90px; }   /* stop below the sticky header when scrolling to /#shop */
+
+/* ---------- Social icons (hero + footer) ---------- */
+.follow-label { margin: 18px 0 6px; text-transform: uppercase; letter-spacing: .12em; font-size: .72rem; }
+.social { display: flex; gap: 10px; flex-wrap: wrap; }
+.social a {
+  width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+  border: 1px solid var(--gold); color: var(--green); transition: background .2s, color .2s;
+}
+.social a:hover { background: var(--green); color: #fff; }
+.social svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; }
+.social svg .fill { fill: currentColor; stroke: none; }
+.site-footer .social { margin-top: 12px; }
+.site-footer .social a { color: var(--gold-soft); border-color: rgba(232, 214, 168, .5); }
+.site-footer .social a:hover { background: var(--gold-soft); color: var(--green); }
+
+/* ---------- Moving strip (Admin > Banner) ---------- */
+.marquee { overflow: hidden; background: var(--green); border-block: 2px solid var(--gold); }
+.marquee-track {
+  display: flex; width: max-content; align-items: center; gap: 28px; padding: 12px 0;
+  animation: marquee var(--duration, 40s) linear infinite;   /* slower when there are more items */
+}
+.marquee:hover .marquee-track { animation-play-state: paused; }   /* stop so people can click */
+.marquee-item { display: inline-flex; align-items: center; gap: 10px; color: #f5ecd6; white-space: nowrap; font-size: .95rem; letter-spacing: .02em; }
+.marquee-item[href]:hover span { text-decoration: underline; text-underline-offset: 3px; }
+.marquee-item img { height: 44px; width: 44px; object-fit: cover; border-radius: 8px; border: 1px solid var(--gold); }
+.marquee-dot { color: var(--gold); }
+@keyframes marquee { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .marquee { overflow-x: auto; } }   /* no motion: let people scroll it */

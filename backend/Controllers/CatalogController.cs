@@ -39,6 +39,12 @@ public class CatalogController(AppDb db) : ControllerBase
         return p == null ? NotFound() : p;
     }
 
+    // GET /api/banners  -> the moving strip on the home page
+    [HttpGet("banners")]
+    public async Task<List<BannerDto>> Banners() =>
+        await db.Banners.Where(b => b.IsActive).OrderBy(b => b.SortOrder).ThenBy(b => b.Id)
+            .Select(b => new BannerDto(b.Id, b.Text, b.ImageUrl, b.Link, b.SortOrder, b.IsActive)).ToListAsync();
+
     // One expression shared by every query, so EF turns it into a single SQL SELECT with a JOIN.
     internal static readonly System.Linq.Expressions.Expression<Func<Product, ProductDto>> ToDto = p =>
         new ProductDto(p.Id, p.Name, p.Description, p.Price, p.Stock, p.ImageUrl, p.IsActive, p.CategoryId, p.Category!.Name);

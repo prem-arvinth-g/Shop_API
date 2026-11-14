@@ -5,7 +5,7 @@ import { map, switchMap } from 'rxjs';
 import { CatalogService } from '../../services/catalog.service';
 import { ProductCard } from '../../components/product-card/product-card';
 
-// /shop?category=3&q=green  — the URL is the single source of truth for the filters.
+// The sarees section of the home page: /?category=3&q=green#shop. The URL holds the filters.
 @Component({
   selector: 'app-shop',
   imports: [RouterLink, ProductCard],

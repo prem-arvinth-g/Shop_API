@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Observable, firstValueFrom } from 'rxjs';
-import { Category, ORDER_STATUSES, Order, Product, ProductInput } from '../../models/models';
+import { Banner, BannerInput, Category, ORDER_STATUSES, Order, Product, ProductInput } from '../../models/models';
 import { AdminService } from '../../services/admin.service';
 import { CatalogService } from '../../services/catalog.service';
 import { ToastService } from '../../services/toast.service';
@@ -20,7 +20,8 @@ export class Admin {
   private catalog = inject(CatalogService);
   private toast = inject(ToastService);
 
-  protected tab = signal<'products' | 'categories' | 'orders'>('products');
+  protected tab = signal<'products' | 'categories' | 'orders' | 'banner'>('products');
+  protected banners = signal<Banner[]>([]);
   protected products = signal<Product[]>([]);
   protected categories = signal<Category[]>([]);
   protected orders = signal<Order[]>([]);
@@ -33,6 +34,10 @@ export class Admin {
   protected uploading = signal(false);
   protected newCategory = '';
 
+  // Banner form: same idea as the product form (null = closed, 0 = new, >0 = editing)
+  protected bannerEditingId = signal<number | null>(null);
+  protected bannerForm: BannerInput = { text: '', imageUrl: null, link: null, sortOrder: 0, isActive: true };
+
   constructor() {
     this.load();
   }
@@ -44,6 +49,7 @@ export class Admin {
     this.admin.products().subscribe({ next: p => { this.products.set(p); this.loaded.set(true); }, error: fail });
     this.catalog.categories().subscribe({ next: c => this.categories.set(c), error: fail });
     this.admin.orders().subscribe({ next: o => this.orders.set(o), error: fail });
+    this.admin.banners().subscribe({ next: b => this.banners.set(b), error: fail });
   }
 
   // ---------- Products ----------
@@ -70,12 +76,12 @@ export class Admin {
     await this.run(this.admin.deleteProduct(p.id), 'Product deleted');
   }
 
-  async upload(event: Event) {
+  async upload(event: Event, target: { imageUrl: string | null } = this.form) {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
     this.uploading.set(true);
     try {
-      this.form.imageUrl = (await firstValueFrom(this.admin.upload(file))).url;
+      target.imageUrl = (await firstValueFrom(this.admin.upload(file))).url;
     } catch (e) {
       this.toast.error(e);
     } finally {
@@ -96,6 +102,31 @@ export class Admin {
 
   async removeCategory(c: Category) {
     if (confirm(`Delete category "${c.name}"?`)) await this.run(this.admin.deleteCategory(c.id), 'Category deleted');
+  }
+
+  // ---------- Banner (moving strip) ----------
+  newBanner() {
+    const next = Math.max(0, ...this.banners().map(b => b.sortOrder)) + 1;
+    this.bannerForm = { text: '', imageUrl: null, link: null, sortOrder: next, isActive: true };
+    this.bannerEditingId.set(0);
+  }
+
+  editBanner(b: Banner) {
+    const { text, imageUrl, link, sortOrder, isActive } = b;
+    this.bannerForm = { text, imageUrl, link, sortOrder, isActive };
+    this.bannerEditingId.set(b.id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  async saveBanner() {
+    const id = this.bannerEditingId();
+    const call = id ? this.admin.updateBanner(id, this.bannerForm) : this.admin.createBanner(this.bannerForm);
+    if (await this.run(call, 'Banner saved')) this.bannerEditingId.set(null);
+  }
+
+  async removeBanner(b: Banner) {
+    if (confirm(`Delete "${b.text}" from the moving strip? Tip: untick "Show" instead to just hide it.`))
+      await this.run(this.admin.deleteBanner(b.id), 'Banner item deleted');
   }
 
   // ---------- Orders ----------

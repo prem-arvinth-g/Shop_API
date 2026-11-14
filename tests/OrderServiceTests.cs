@@ -68,3 +68,23 @@ public class OrderServiceTests
         public IFileProvider ContentRootFileProvider { get; set; } = new NullFileProvider();
     }
 }
+
+// A table added after launch (like Banners) must be created on an existing database without losing data.
+public class SeedTests
+{
+    [Fact]
+    public void Missing_table_is_added_and_existing_data_kept()
+    {
+        var conn = new SqliteConnection("Data Source=:memory:");
+        conn.Open();
+        var options = new DbContextOptionsBuilder<AppDb>().UseSqlite(conn).Options;
+        Seed.Run(new AppDb(options));
+        new AppDb(options).Database.ExecuteSqlRaw(@"DROP TABLE ""Banners""");   // pretend the live DB is from before banners existed
+
+        var db = new AppDb(options);   // fresh context, like the app restarting after a deploy
+        Seed.Run(db);
+
+        Assert.Equal(7, db.Banners.Count());
+        Assert.Equal(30, db.Products.Count());
+    }
+}

@@ -102,6 +102,48 @@ public class AdminController(AppDb db, ImageService images) : ControllerBase
         return n == 0 ? NotFound() : NoContent();
     }
 
+    // ---------- Banner (moving strip on the home page) ----------
+    [HttpGet("banners")]
+    public async Task<List<BannerDto>> Banners() =>
+        await db.Banners.OrderBy(b => b.SortOrder).ThenBy(b => b.Id)
+            .Select(b => new BannerDto(b.Id, b.Text, b.ImageUrl, b.Link, b.SortOrder, b.IsActive)).ToListAsync();
+
+    [HttpPost("banners")]
+    public async Task<ActionResult<int>> CreateBanner(BannerInput input)
+    {
+        var b = new Banner();
+        ApplyBanner(b, input);
+        db.Banners.Add(b);
+        await db.SaveChangesAsync();
+        return b.Id;
+    }
+
+    [HttpPut("banners/{id:int}")]
+    public async Task<IActionResult> UpdateBanner(int id, BannerInput input)
+    {
+        var b = await db.Banners.FindAsync(id);
+        if (b == null) return NotFound();
+        ApplyBanner(b, input);
+        await db.SaveChangesAsync();
+        return NoContent();
+    }
+
+    [HttpDelete("banners/{id:int}")]
+    public async Task<IActionResult> DeleteBanner(int id)
+    {
+        await db.Banners.Where(b => b.Id == id).ExecuteDeleteAsync();
+        return NoContent();
+    }
+
+    static void ApplyBanner(Banner b, BannerInput i)
+    {
+        b.Text = i.Text.Trim();
+        b.ImageUrl = string.IsNullOrWhiteSpace(i.ImageUrl) ? null : i.ImageUrl;
+        b.Link = string.IsNullOrWhiteSpace(i.Link) ? null : i.Link.Trim();   // only https:// or / allowed (BannerInput), so no javascript: links
+        b.SortOrder = i.SortOrder;
+        b.IsActive = i.IsActive;
+    }
+
     // ---------- Image upload ----------
     [HttpPost("upload")]
     public async Task<object> Upload(IFormFile file) => new { url = await images.Save(file) };

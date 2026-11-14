@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Order, Product, ProductInput } from '../models/models';
+import { Banner, BannerInput, Order, Product, ProductInput } from '../models/models';
 
 // Admin-only API: backend/Controllers/AdminController.cs (403 for non-admins)
 @Injectable({ providedIn: 'root' })
@@ -19,6 +19,11 @@ export class AdminService {
 
   orders() { return this.http.get<Order[]>(`${this.base}/orders`); }
   setStatus(id: number, status: string) { return this.http.put(`${this.base}/orders/${id}/status`, { status }); }
+
+  banners() { return this.http.get<Banner[]>(`${this.base}/banners`); }
+  createBanner(b: BannerInput) { return this.http.post<number>(`${this.base}/banners`, b); }
+  updateBanner(id: number, b: BannerInput) { return this.http.put(`${this.base}/banners/${id}`, b); }
+  deleteBanner(id: number) { return this.http.delete(`${this.base}/banners/${id}`); }
 
   upload(file: File) {
     const form = new FormData();

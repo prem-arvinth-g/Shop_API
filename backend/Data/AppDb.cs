@@ -12,6 +12,7 @@ public class AppDb(DbContextOptions<AppDb> options) : DbContext(options)
     public DbSet<OtpCode> OtpCodes => Set<OtpCode>();
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+    public DbSet<Banner> Banners => Set<Banner>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {

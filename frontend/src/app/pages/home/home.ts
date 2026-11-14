@@ -1,18 +1,14 @@
-import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { map } from 'rxjs';
-import { CatalogService } from '../../services/catalog.service';
-import { ProductCard } from '../../components/product-card/product-card';
+import { Shop } from '../shop/shop';
+import { Marquee } from '../../components/marquee/marquee';
+import { SocialLinks } from '../../components/social-links/social-links';
 
+// One long page: hero -> moving strip -> all sarees (with filters & search) -> trust strip.
+// "Shop" links everywhere point to /#shop and scroll down to the sarees instead of opening another page.
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, ProductCard],
+  imports: [RouterLink, Shop, Marquee, SocialLinks],
   templateUrl: './home.html',
 })
-export class Home {
-  private catalog = inject(CatalogService);
-  // toSignal: calls the API once and gives the template a value that updates when the response arrives.
-  protected categories = toSignal(this.catalog.categories(), { initialValue: [] });
-  protected featured = toSignal(this.catalog.products().pipe(map(list => list.slice(0, 8))), { initialValue: [] });
-}
+export class Home {}

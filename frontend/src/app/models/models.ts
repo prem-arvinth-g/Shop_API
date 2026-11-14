@@ -74,3 +74,14 @@ export interface Order {
 }
 
 export const ORDER_STATUSES = ['Pending', 'Paid', 'Shipped', 'Delivered', 'Cancelled'];
+
+// One item in the moving strip on the home page (Admin > Banner).
+export interface Banner {
+  id: number;
+  text: string;
+  imageUrl: string | null;
+  link: string | null;       // https://... (opens in a new tab) or /path (inside the shop)
+  sortOrder: number;
+  isActive: boolean;
+}
+export type BannerInput = Omit<Banner, 'id'>;

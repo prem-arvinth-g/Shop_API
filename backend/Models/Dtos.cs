@@ -46,3 +46,11 @@ public record OrderDto(int Id, string CustomerName, string Phone, string Address
 }
 
 public record StatusInput([Required] string Status);
+
+public record BannerDto(int Id, string Text, string? ImageUrl, string? Link, int SortOrder, bool IsActive);
+public record BannerInput(
+    [Required, MaxLength(120)] string Text,
+    [MaxLength(500)] string? ImageUrl,
+    [MaxLength(500), RegularExpression(@"^(https://|/).*", ErrorMessage = "Link must start with https:// or /")] string? Link,
+    int SortOrder,
+    bool IsActive);
