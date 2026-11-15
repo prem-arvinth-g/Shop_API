@@ -23,7 +23,9 @@ export class MapPin implements OnDestroy {
 
   constructor() {
     afterNextRender(async () => {
-      const L = await import('leaflet');
+      // Leaflet is an old-style (CommonJS) package: the production build puts it under .default, the dev build doesn't.
+      const m = await import('leaflet');
+      const L = m.default ?? m;
       const start = this.pin();
       this.map = L.map(this.box().nativeElement, { zoomControl: true })
         .setView(start ?? INDIA, start ? 17 : INDIA.zoom);
