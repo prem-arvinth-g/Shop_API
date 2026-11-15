@@ -306,3 +306,4 @@ input.ng-invalid.ng-touched, textarea.ng-invalid.ng-touched { border-color: var(
   transform: translate(-50%, -100%); fill: var(--maroon); filter: drop-shadow(0 2px 2px rgba(0,0,0,.35)); }
 .map-centre-shadow { position: absolute; left: 50%; top: 50%; width: 12px; height: 4px; z-index: 499; pointer-events: none;
   transform: translate(-50%, -50%); border-radius: 50%; background: rgba(0,0,0,.3); }
+.icon { width: 1.1em; height: 1.1em; fill: currentColor; vertical-align: -.15em; flex-shrink: 0; }

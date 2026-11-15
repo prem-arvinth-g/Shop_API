@@ -14,7 +14,7 @@
   </div>
   <p class="small" [class.muted]="!zoomedIn()" role="status">
     @if (status()) { {{ status() }} }
-    @else if (zoomedIn()) { ✓ Pin set. We'll deliver to the spot under the pin. }
-    @else { Zoom in and move the map until the pin is on your house. }
+    @else if (zoomedIn()) { Pin set. Drag the map if it isn't exactly on your house. }
+    @else { Type your address above, or zoom in and drag the map until the pin is on your house. }
   </p>
 </div>
