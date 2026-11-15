@@ -89,3 +89,16 @@ export interface Banner {
   isActive: boolean;
 }
 export type BannerInput = Omit<Banner, 'id'>;
+
+// A delivery address the customer saved with a name (Home, Work, ...). Mirrors AddressDto in backend/Models/Dtos.cs.
+export interface SavedAddress {
+  id: number;
+  label: string;
+  customerName: string;
+  phone: string;
+  address: string;
+  latitude: number | null;
+  longitude: number | null;
+  pinAddress: string | null;
+}
+export type AddressInput = Omit<SavedAddress, 'id'>;

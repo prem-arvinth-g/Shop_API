@@ -35,6 +35,7 @@ const PAGES: Record<string, { title: string; body: string[] }> = {
     title: 'Privacy policy',
     body: [
       'We collect your name, email, mobile number and address only to deliver your order and contact you about it.',
+      'Addresses you save at checkout (Home, Work, ...) stay in your account until you delete them. Only you can see them.',
       'Payments are processed by Razorpay. We never see or store your card, UPI or bank details.',
       'If you open the map at checkout, the address you type and the spot you pin are sent to OpenStreetMap to find them on the map and look up the street name. The pinned spot and its address are saved with your order for the courier.',
       'We do not sell or share your details with anyone except the courier that delivers your order.',

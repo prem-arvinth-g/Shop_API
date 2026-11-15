@@ -15,7 +15,10 @@
   <div class="field-label">Address at the pin
     <div class="pin-address" aria-live="polite">
       @if (looking()) { <span class="spinner" aria-hidden="true"></span> Fetching address… }
-      @else if (pinAddress()) { {{ pinAddress() }} }
+      @else if (pinAddress()) {
+        <span class="grow">{{ pinAddress() }}</span>
+        <button type="button" class="btn btn-sm" (click)="usePinAddress()">Use this address</button>
+      }
       @else { <span class="muted">Zoom in and move the map. The address of the pinned spot shows here.</span> }
     </div>
   </div>

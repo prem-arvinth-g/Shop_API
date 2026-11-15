@@ -16,12 +16,14 @@ public class AppDb(DbContextOptions<AppDb> options) : DbContext(options), IDataP
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
     public DbSet<Banner> Banners => Set<Banner>();
+    public DbSet<SavedAddress> SavedAddresses => Set<SavedAddress>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
         b.Entity<User>().HasIndex(u => u.Email).IsUnique();
         b.Entity<OtpCode>().HasIndex(o => o.Email);
         b.Entity<Order>().HasIndex(o => o.RazorpayOrderId);
+        b.Entity<SavedAddress>().HasIndex(a => a.UserId);
         // Can't delete a category that still has products (the API returns a friendly message instead).
         b.Entity<Product>().HasOne(p => p.Category).WithMany(c => c.Products).OnDelete(DeleteBehavior.Restrict);
     }

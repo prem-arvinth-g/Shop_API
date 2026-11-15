@@ -313,3 +313,16 @@ input.ng-invalid.ng-touched, textarea.ng-invalid.ng-touched { border-color: var(
 .spinner { width: 16px; height: 16px; border: 2px solid var(--line); border-top-color: var(--green); border-radius: 50%;
   animation: spin .8s linear infinite; flex-shrink: 0; }
 @keyframes spin { to { transform: rotate(360deg); } }
+.pin-address .grow { flex: 1; }
+@media (max-width: 520px) { .pin-address { flex-wrap: wrap; } .pin-address .btn { width: 100%; } }
+/* Saved addresses at checkout */
+.address-picker { border: 0; padding: 0; margin: 0 0 4px; display: grid; gap: 8px; }
+.address-picker legend { font-size: .9rem; font-weight: 500; margin-bottom: 8px; }
+.form .address-card { display: flex; align-items: flex-start; gap: 10px; padding: .8rem .9rem; border: 1px solid var(--line);
+  border-radius: var(--radius); background: var(--paper); cursor: pointer; font-weight: 400; }
+.form .address-card.active { border-color: var(--green); box-shadow: 0 0 0 1px var(--green); }
+.form .address-card input { width: auto; margin-top: 4px; accent-color: var(--green); }
+.address-card-body { flex: 1; display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.save-address { display: grid; gap: 10px; }
+.save-address .chips { margin: 0; }
+.pinned { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0; }

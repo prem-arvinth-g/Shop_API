@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnDestroy, afterNextRender, effect, input, model, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, afterNextRender, effect, input, model, output, signal, viewChild } from '@angular/core';
 import type { Map as LeafletMap } from 'leaflet';
 
 export interface Pin { lat: number; lng: number; }
@@ -21,6 +21,7 @@ export class MapPin implements OnDestroy {
   readonly address = input('');            // the typed address: the map follows it
   readonly pin = model<Pin | null>(null);  // two-way: checkout.html binds [(pin)]
   readonly pinAddress = model('');         // the address OpenStreetMap gives for the pinned spot, saved with the order
+  readonly useAddress = output<string>();  // "Use this address": checkout copies it into the typed address box
 
   protected readonly box = viewChild.required<ElementRef<HTMLElement>>('box');
   protected readonly zoomedIn = signal(false);
@@ -39,6 +40,7 @@ export class MapPin implements OnDestroy {
       const m = await import('leaflet');
       const L = m.default ?? m;
       const start = this.pin();
+      if (start) this.following = false;   // reopening a saved pin: keep it, don't jump to a search of the address
       this.map = L.map(this.box().nativeElement, { minZoom: 4, maxBounds: INDIA_EDGES, maxBoundsViscosity: 1 })
         .setView(start ?? INDIA, start ? STREET : INDIA.zoom);
       L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -87,6 +89,12 @@ export class MapPin implements OnDestroy {
       this.pinAddress.set(found ?? '');
       this.looking.set(false);
     }, PIN_PAUSE);
+  }
+
+  // Copies the pin's address into the delivery address box. The map stays put: the pin is the source now.
+  usePinAddress() {
+    this.following = false;
+    this.useAddress.emit(this.pinAddress());
   }
 
   // Phone GPS. The browser asks the customer first; works only on https (and localhost).

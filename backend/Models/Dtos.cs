@@ -58,3 +58,14 @@ public record BannerInput(
     [MaxLength(500), RegularExpression(@"^(https://|/).*", ErrorMessage = "Link must start with https:// or /")] string? Link,
     int SortOrder,
     bool IsActive);
+
+public record AddressDto(int Id, string Label, string CustomerName, string Phone, string Address,
+    double? Latitude, double? Longitude, string? PinAddress);
+public record AddressInput(
+    [Required, MaxLength(40)] string Label,
+    [Required, MaxLength(100)] string CustomerName,
+    [Required, RegularExpression(@"^[6-9]\d{9}$", ErrorMessage = "Enter a 10-digit mobile number")] string Phone,
+    [Required, MaxLength(500)] string Address,
+    [Range(6.0, 37.5)] double? Latitude = null,
+    [Range(68.0, 97.5)] double? Longitude = null,
+    [MaxLength(300)] string? PinAddress = null);

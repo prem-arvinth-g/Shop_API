@@ -9,6 +9,27 @@
   @if (cart.checkoutItems().length) {
     <div class="checkout-grid">
       <form #f="ngForm" (ngSubmit)="f.valid && placeOrder()" class="form">
+        <!-- Saved addresses: pick one to fill the form, or add a new one (backend: AddressesController). -->
+        @if (addresses().length) {
+          <fieldset class="address-picker">
+            <legend>Deliver to</legend>
+            @for (a of addresses(); track a.id) {
+              <label class="address-card" [class.active]="selectedId() === a.id">
+                <input type="radio" name="savedAddress" [checked]="selectedId() === a.id" (change)="select(a)">
+                <span class="address-card-body">
+                  <strong>{{ a.label }}</strong>
+                  <span>{{ a.customerName }} · {{ a.phone }}</span>
+                  <span class="muted small">{{ a.address }}</span>
+                </span>
+                <button type="button" class="link danger small" (click)="$event.preventDefault(); remove(a)">Delete</button>
+              </label>
+            }
+            <label class="address-card" [class.active]="selectedId() === null">
+              <input type="radio" name="savedAddress" [checked]="selectedId() === null" (change)="newAddress()">
+              <span class="address-card-body"><strong>+ Add a new address</strong></span>
+            </label>
+          </fieldset>
+        }
         <label>Full name
           <input name="customerName" [(ngModel)]="form.customerName" required maxlength="100" autocomplete="name">
         </label>
@@ -20,11 +41,34 @@
         </label>
         <!-- Optional exact spot, for village or new-area addresses that couriers struggle to find (components/map-pin). -->
         @if (showMap()) {
-          <app-map-pin [address]="form.address" [(pin)]="pin" [(pinAddress)]="pinAddress" />
-          <button type="button" class="link small" (click)="showMap.set(false); pin.set(null); pinAddress.set('')">Remove map pin</button>
+          <app-map-pin [address]="form.address" [(pin)]="pin" [(pinAddress)]="pinAddress" (useAddress)="form.address = $event" />
+          <button type="button" class="link small" (click)="clearPin()">Remove map pin</button>
+        } @else if (pin()) {
+          <p class="small pinned">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+            Exact location pinned on the map.
+            <button type="button" class="link" (click)="showMap.set(true)">Change</button>
+            <button type="button" class="link danger" (click)="clearPin()">Remove</button>
+          </p>
         } @else {
           <button type="button" class="btn btn-outline btn-sm" (click)="showMap.set(true)"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg> Pin exact location on map (optional)</button>
         }
+        <div class="save-address">
+          <label class="check">
+            <input type="checkbox" name="saveIt" [(ngModel)]="saveIt">
+            {{ selected() ? 'Save changes to "' + selected()!.label + '"' : 'Save this address for next time' }}
+          </label>
+          @if (saveIt && !selected()) {
+            <div class="chips" role="group" aria-label="Name this address">
+              @for (c of labelChoices; track c) {
+                <button type="button" class="chip" [class.active]="labelChoice() === c" (click)="labelChoice.set(c)">{{ c }}</button>
+              }
+            </div>
+            @if (labelChoice() === 'Other') {
+              <input name="otherLabel" [(ngModel)]="otherLabel" maxlength="40" placeholder="Name it, e.g. Amma's house" aria-label="Address name">
+            }
+          }
+        </div>
         <button type="submit" class="btn btn-block" [disabled]="busy() || f.invalid">
           {{ busy() ? 'Please wait…' : 'Pay ₹' + (cart.checkoutTotal() | number) }}
         </button>
