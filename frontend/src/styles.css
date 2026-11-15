@@ -307,3 +307,9 @@ input.ng-invalid.ng-touched, textarea.ng-invalid.ng-touched { border-color: var(
 .map-centre-shadow { position: absolute; left: 50%; top: 50%; width: 12px; height: 4px; z-index: 499; pointer-events: none;
   transform: translate(-50%, -50%); border-radius: 50%; background: rgba(0,0,0,.3); }
 .icon { width: 1.1em; height: 1.1em; fill: currentColor; vertical-align: -.15em; flex-shrink: 0; }
+.field-label { display: grid; gap: 6px; font-size: .9rem; font-weight: 500; }
+.pin-address { min-height: 2.9rem; padding: .7rem .9rem; border: 1px solid var(--line); border-radius: var(--radius);
+  background: var(--paper); font-weight: 400; display: flex; align-items: center; gap: 8px; }
+.spinner { width: 16px; height: 16px; border: 2px solid var(--line); border-top-color: var(--green); border-radius: 50%;
+  animation: spin .8s linear infinite; flex-shrink: 0; }
+@keyframes spin { to { transform: rotate(360deg); } }

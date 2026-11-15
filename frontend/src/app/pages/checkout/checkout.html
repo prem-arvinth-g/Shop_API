@@ -20,8 +20,8 @@
         </label>
         <!-- Optional exact spot, for village or new-area addresses that couriers struggle to find (components/map-pin). -->
         @if (showMap()) {
-          <app-map-pin [address]="form.address" [(pin)]="pin" />
-          <button type="button" class="link small" (click)="showMap.set(false); pin.set(null)">Remove map pin</button>
+          <app-map-pin [address]="form.address" [(pin)]="pin" [(pinAddress)]="pinAddress" />
+          <button type="button" class="link small" (click)="showMap.set(false); pin.set(null); pinAddress.set('')">Remove map pin</button>
         } @else {
           <button type="button" class="btn btn-outline btn-sm" (click)="showMap.set(true)"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg> Pin exact location on map (optional)</button>
         }

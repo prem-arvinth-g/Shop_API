@@ -20,6 +20,7 @@ public class Order
     public string Address { get; set; } = "";
     public double? Latitude { get; set; }          // optional map pin from checkout, for addresses that are hard to find
     public double? Longitude { get; set; }
+    public string? PinAddress { get; set; }        // OpenStreetMap's address for that pin, e.g. "Bazaar Street, Andipatti, ..."
     public int Total { get; set; }                 // rupees, calculated on the server
     public string Status { get; set; } = OrderStatus.Pending;
     public string? RazorpayOrderId { get; set; }

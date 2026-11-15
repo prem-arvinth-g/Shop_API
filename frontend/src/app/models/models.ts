@@ -69,6 +69,7 @@ export interface Order {
   address: string;
   latitude: number | null;    // map pin from checkout, if the customer set one
   longitude: number | null;
+  pinAddress: string | null;  // the map's address for that pin
   total: number;
   status: string;
   createdAt: string;

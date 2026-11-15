@@ -30,6 +30,7 @@ export class CheckoutPage {
   protected offerSave = signal(false);   // shows the "save to cart?" pop-up in checkout.html
   protected showMap = signal(false);
   protected pin = signal<Pin | null>(null);   // set by <app-map-pin>; null = no pin, the typed address is enough
+  protected pinAddress = signal('');          // what OpenStreetMap calls the pinned spot, for the courier
 
   // "Yes, add to cart": the saree joins the cart and Buy now ends, so the cart page takes over.
   saveToCart() {
@@ -46,7 +47,7 @@ export class CheckoutPage {
     try {
       const items = this.cart.checkoutItems().map(i => ({ productId: i.product.id, quantity: i.quantity }));
       const pin = this.pin();
-      const checkout = await firstValueFrom(this.orders.create({ ...this.form, items, latitude: pin?.lat, longitude: pin?.lng }));   // POST /api/orders
+      const checkout = await firstValueFrom(this.orders.create({ ...this.form, items, latitude: pin?.lat, longitude: pin?.lng, pinAddress: pin ? this.pinAddress() || undefined : undefined }));   // POST /api/orders
 
       const payment = await this.pay(checkout);                                             // popup
       if (!payment) {

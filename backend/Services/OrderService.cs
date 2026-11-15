@@ -20,6 +20,7 @@ public class OrderService(AppDb db, PaymentService payments)
             // 6 decimals = about 10 cm. More digits are just noise.
             Latitude = req.Latitude is { } lat ? Math.Round(lat, 6) : null,
             Longitude = req.Longitude is { } lng ? Math.Round(lng, 6) : null,
+            PinAddress = req.Latitude.HasValue ? req.PinAddress?.Trim() : null,
         };
         foreach (var line in req.Items)
         {
