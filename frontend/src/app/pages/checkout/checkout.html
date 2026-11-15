@@ -35,8 +35,22 @@
     </div>
   } @else {
     <div class="empty">
-      <p>Your cart is empty.</p>
+      <p>Nothing selected to buy.</p>
       <a routerLink="/" fragment="shop" class="btn">Start shopping</a>
+    </div>
+  }
+
+  <!-- Buy now payment cancelled (checkout.ts: offerSave). -->
+  @if (offerSave() && cart.buyNow(); as b) {
+    <div class="dialog-backdrop">
+      <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="save-title">
+        <h2 id="save-title">Payment cancelled</h2>
+        <p>Nothing was charged. Would you like to keep <strong>{{ b.product.name }}</strong> in your cart for later?</p>
+        <div class="dialog-actions">
+          <button type="button" class="btn" (click)="saveToCart()">Add to cart</button>
+          <button type="button" class="btn btn-outline" (click)="offerSave.set(false)">No, thanks</button>
+        </div>
+      </div>
     </div>
   }
 </section>

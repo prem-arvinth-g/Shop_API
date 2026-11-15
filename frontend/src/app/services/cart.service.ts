@@ -10,15 +10,19 @@ const BUY_NOW_KEY = 'acs_buy_now';
 export class CartService {
   readonly items = signal<CartItem[]>(load(localStorageSafe(), KEY) ?? []);
   readonly count = computed(() => this.items().reduce((n, i) => n + i.quantity, 0));
-  readonly total = computed(() => this.items().reduce((sum, i) => sum + i.product.price * i.quantity, 0));
+
+  // Ticked rows only: these are what "Checkout" pays for. Unticked rows stay in the cart for later.
+  readonly selectedItems = computed(() => this.items().filter(isSelected));
+  readonly allSelected = computed(() => this.items().every(isSelected));
+  readonly total = computed(() => sum(this.selectedItems()));
 
   // "Buy now" = one saree checked out on its own, without touching the cart.
   // Kept in sessionStorage so a page refresh on /checkout doesn't lose it.
   readonly buyNow = signal<CartItem | null>(load(sessionStorageSafe(), BUY_NOW_KEY));
 
   // What checkout is paying for: the Buy now item if there is one, otherwise the whole cart.
-  readonly checkoutItems = computed(() => { const b = this.buyNow(); return b ? [b] : this.items(); });
-  readonly checkoutTotal = computed(() => this.checkoutItems().reduce((sum, i) => sum + i.product.price * i.quantity, 0));
+  readonly checkoutItems = computed(() => { const b = this.buyNow(); return b ? [b] : this.selectedItems(); });
+  readonly checkoutTotal = computed(() => sum(this.checkoutItems()));
 
   constructor() {
     effect(() => save(localStorageSafe(), KEY, this.items()));        // any change -> saved automatically
@@ -29,8 +33,16 @@ export class CartService {
     const existing = this.items().find(i => i.product.id === product.id);
     const qty = Math.min((existing?.quantity ?? 0) + quantity, product.stock);
     this.items.update(list => existing
-      ? list.map(i => (i.product.id === product.id ? { ...i, quantity: qty } : i))
-      : [...list, { product, quantity: qty }]);
+      ? list.map(i => (i.product.id === product.id ? { ...i, quantity: qty, selected: true } : i))
+      : [...list, { product, quantity: qty, selected: true }]);
+  }
+
+  toggle(productId: number) {
+    this.items.update(list => list.map(i => (i.product.id === productId ? { ...i, selected: !isSelected(i) } : i)));
+  }
+
+  selectAll(selected: boolean) {
+    this.items.update(list => list.map(i => ({ ...i, selected })));
   }
 
   setQuantity(productId: number, quantity: number) {
@@ -43,21 +55,20 @@ export class CartService {
     this.items.update(list => list.filter(i => i.product.id !== productId));
   }
 
-  clear() {
-    this.items.set([]);
-  }
-
   startBuyNow(product: Product, quantity: number) {
     this.buyNow.set({ product, quantity: Math.min(quantity, product.stock) });
   }
 
-  // After a successful payment: Buy now -> forget that one item; cart checkout -> empty the cart.
-  // The products now live in "My orders" on the server.
+  // After a successful payment: Buy now -> forget that one item; cart checkout -> remove only the ticked rows.
+  // The products now live in "My orders" on the server; unticked rows stay in the cart.
   finishCheckout() {
     if (this.buyNow()) this.buyNow.set(null);
-    else this.clear();
+    else this.items.update(list => list.filter(i => !isSelected(i)));
   }
 }
+
+const isSelected = (i: CartItem) => i.selected !== false;
+const sum = (list: CartItem[]) => list.reduce((total, i) => total + i.product.price * i.quantity, 0);
 
 function localStorageSafe() { try { return localStorage; } catch { return null; } }
 function sessionStorageSafe() { try { return sessionStorage; } catch { return null; } }

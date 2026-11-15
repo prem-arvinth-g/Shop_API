@@ -3,9 +3,17 @@
 
   @if (cart.items().length) {
     <div class="cart-grid">
+    <div>
+    <!-- Tick what to buy now; unticked sarees stay in the cart for later (cart.service.ts: selectedItems). -->
+    <label class="select-all">
+      <input type="checkbox" [checked]="cart.allSelected()" (change)="cart.selectAll(!cart.allSelected())">
+      Select all
+    </label>
     <ul class="cart-list">
       @for (i of cart.items(); track i.product.id) {
-        <li class="cart-row">
+        <li class="cart-row" [class.unselected]="i.selected === false">
+          <input type="checkbox" class="cart-check" [checked]="i.selected !== false" (change)="cart.toggle(i.product.id)"
+                 [attr.aria-label]="'Buy ' + i.product.name + ' now'">
           <a [routerLink]="['/product', i.product.id]" class="cart-thumb">
             <app-product-image [src]="i.product.imageUrl" [alt]="i.product.name" [seed]="i.product.id" />
           </a>
@@ -25,13 +33,18 @@
         </li>
       }
     </ul>
+    </div>
     <aside class="order-summary">
     <div class="summary">
-      <span>Total</span>
+      <span>Total ({{ cart.selectedItems().length }} of {{ cart.items().length }} sarees)</span>
       <strong class="price-lg">₹{{ cart.total() | number }}</strong>
     </div>
     <p class="muted">Free shipping across India.</p>
-    <a routerLink="/checkout" class="btn btn-block" (click)="cart.buyNow.set(null)">Checkout</a>
+    @if (cart.selectedItems().length) {
+      <a routerLink="/checkout" class="btn btn-block" (click)="cart.buyNow.set(null)">Checkout selected</a>
+    } @else {
+      <button type="button" class="btn btn-block" disabled>Tick a saree to checkout</button>
+    }
     </aside>
     </div>
   } @else {

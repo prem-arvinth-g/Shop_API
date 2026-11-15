@@ -26,6 +26,16 @@ export class CheckoutPage {
 
   protected form = { customerName: '', phone: '', address: '' };
   protected busy = signal(false);
+  protected offerSave = signal(false);   // shows the "save to cart?" pop-up in checkout.html
+
+  // "Yes, add to cart": the saree joins the cart and Buy now ends, so the cart page takes over.
+  saveToCart() {
+    const b = this.cart.buyNow();
+    if (b) this.cart.add(b.product, b.quantity);
+    this.cart.buyNow.set(null);
+    this.toast.show('Saved to your cart. Nothing was charged.');
+    this.router.navigate(['/cart'], { replaceUrl: true });
+  }
 
   // The whole buying flow: create order -> Razorpay popup -> server verifies -> success page.
   async placeOrder() {
@@ -36,7 +46,9 @@ export class CheckoutPage {
 
       const payment = await this.pay(checkout);                                             // popup
       if (!payment) {
-        this.toast.show('Payment cancelled. Nothing was charged.', 'error');
+        // Buy now cancelled: offer to keep the saree in the cart for later. Cart checkout: the cart is untouched anyway.
+        if (this.cart.buyNow()) this.offerSave.set(true);
+        else this.toast.show('Payment cancelled. Nothing was charged.', 'error');
         return;
       }
 

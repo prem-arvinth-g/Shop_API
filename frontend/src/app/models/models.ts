@@ -32,6 +32,7 @@ export interface ProductInput {
 export interface CartItem {
   product: Product;
   quantity: number;
+  selected?: boolean;   // ticked in the cart = goes to checkout. Missing counts as ticked (carts saved before this existed).
 }
 
 export interface Me {
