@@ -105,6 +105,9 @@
         </header>
         <p class="muted">{{ o.createdAt | date: 'd MMM y, h:mm a' }} · {{ o.email }} · {{ o.phone }}</p>
         <p class="small">{{ o.address }}</p>
+        @if (o.latitude != null && o.longitude != null) {
+          <a class="small" target="_blank" rel="noopener" [href]="'https://www.google.com/maps?q=' + o.latitude + ',' + o.longitude">📍 Open pin in Google Maps</a>
+        }
         @for (i of o.items; track $index) {
           <div class="summary-line"><span>{{ i.productName }} × {{ i.quantity }}</span><span>₹{{ i.price * i.quantity | number }}</span></div>
         }

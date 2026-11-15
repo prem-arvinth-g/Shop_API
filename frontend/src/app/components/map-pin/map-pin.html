@@ -1,0 +1,16 @@
+<div class="map-pin">
+  <div class="map-tools">
+    <button type="button" class="btn btn-outline btn-sm" (click)="useMyLocation()">Use my current location</button>
+    <button type="button" class="btn btn-outline btn-sm" (click)="findAddress()">Find my address</button>
+  </div>
+  <div class="map-wrap">
+    <div #box class="map-box"></div>
+    <!-- The pin is drawn over the map, always in the middle; the map moves under it. -->
+    <span class="map-centre-pin" aria-hidden="true"></span>
+  </div>
+  <p class="small" [class.muted]="!zoomedIn()" role="status">
+    @if (status()) { {{ status() }} }
+    @else if (zoomedIn()) { ✓ Pin set. We'll deliver to the spot under the pin. }
+    @else { Zoom in and move the map until the pin is on your house. }
+  </p>
+</div>

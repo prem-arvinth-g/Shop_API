@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using ShopApi.Models;
 
 namespace ShopApi.Data;
@@ -9,10 +10,11 @@ public static class Seed
 {
     public static void Run(AppDb db)
     {
-        // shortcut: EnsureCreated builds tables on an empty DB, and AddMissingTables adds NEW tables later.
-        // Neither can add a column to an existing table: switch to EF migrations before doing that on the live DB.
+        // shortcut: EnsureCreated builds tables on an empty DB; AddMissingTables/AddMissingColumns add NEW tables and
+        // NEW nullable columns later. Renaming, deleting or changing a column still needs EF migrations.
         db.Database.EnsureCreated();
         AddMissingTables(db);
+        AddMissingColumns(db);
         SeedBanners(db);
         if (db.Categories.Any()) return;
 
@@ -57,9 +59,30 @@ public static class Seed
         }
     }
 
-    static bool TableExists(AppDb db, string table)
+    // A property added to a model after launch (e.g. Order.Latitude) becomes ALTER TABLE ... ADD COLUMN.
+    // Only nullable columns: old rows simply get NULL, so existing orders are untouched.
+    static void AddMissingColumns(AppDb db)
     {
-        try { db.Database.ExecuteSqlRaw($@"SELECT 1 FROM ""{table}"" WHERE 1 = 0"); return true; }
+        foreach (var entity in db.Model.GetEntityTypes())
+        {
+            var table = entity.GetTableName()!;
+            var where = StoreObjectIdentifier.Table(table, entity.GetSchema());
+            foreach (var p in entity.GetProperties())
+            {
+                var column = p.GetColumnName(where)!;
+                if (Exists(db, $@"SELECT ""{column}"" FROM ""{table}"" WHERE 1 = 0")) continue;
+                if (!p.IsNullable)
+                    throw new InvalidOperationException($"New column {table}.{column} must be nullable (or use EF migrations).");
+                db.Database.ExecuteSqlRaw($@"ALTER TABLE ""{table}"" ADD COLUMN ""{column}"" {p.GetColumnType()} NULL");
+            }
+        }
+    }
+
+    static bool TableExists(AppDb db, string table) => Exists(db, $@"SELECT 1 FROM ""{table}"" WHERE 1 = 0");
+
+    static bool Exists(AppDb db, string probeSql)
+    {
+        try { db.Database.ExecuteSqlRaw(probeSql); return true; }
         catch { return false; }
     }
 

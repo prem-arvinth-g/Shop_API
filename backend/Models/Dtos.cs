@@ -30,18 +30,21 @@ public record CreateOrderRequest(
     [Required, MaxLength(100)] string CustomerName,
     [Required, RegularExpression(@"^[6-9]\d{9}$", ErrorMessage = "Enter a 10-digit mobile number")] string Phone,
     [Required, MaxLength(500)] string Address,
-    [Required, MinLength(1)] List<CartLine> Items);
+    [Required, MinLength(1)] List<CartLine> Items,
+    // Optional map pin. The ranges are India's borders, so a typo or a fake value can't land in the sea.
+    [Range(6.0, 37.5)] double? Latitude = null,
+    [Range(68.0, 97.5)] double? Longitude = null);
 
 // What the browser needs to open the Razorpay popup.
 public record CheckoutDto(int OrderId, int Total, string RazorpayOrderId, string? RazorpayKeyId);
 public record VerifyPaymentRequest([Required] string RazorpayOrderId, [Required] string RazorpayPaymentId, [Required] string RazorpaySignature);
 
 public record OrderItemDto(int ProductId, string ProductName, int Price, int Quantity);
-public record OrderDto(int Id, string CustomerName, string Phone, string Address, int Total, string Status,
-    DateTime CreatedAt, string? Email, List<OrderItemDto> Items)
+public record OrderDto(int Id, string CustomerName, string Phone, string Address, double? Latitude, double? Longitude,
+    int Total, string Status, DateTime CreatedAt, string? Email, List<OrderItemDto> Items)
 {
     // SpecifyKind: SQLite forgets the time is UTC; marking it adds the "Z" so browsers convert to IST correctly.
-    public static OrderDto From(Order o) => new(o.Id, o.CustomerName, o.Phone, o.Address, o.Total, o.Status,
+    public static OrderDto From(Order o) => new(o.Id, o.CustomerName, o.Phone, o.Address, o.Latitude, o.Longitude, o.Total, o.Status,
         DateTime.SpecifyKind(o.CreatedAt, DateTimeKind.Utc), o.User?.Email, o.Items.Select(i => new OrderItemDto(i.ProductId, i.ProductName, i.Price, i.Quantity)).ToList());
 }
 

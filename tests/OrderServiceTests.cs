@@ -87,4 +87,25 @@ public class SeedTests
         Assert.Equal(7, db.Banners.Count());
         Assert.Equal(30, db.Products.Count());
     }
+
+    [Fact]
+    public void Missing_column_is_added_and_old_orders_kept()
+    {
+        var conn = new SqliteConnection("Data Source=:memory:");
+        conn.Open();
+        var options = new DbContextOptionsBuilder<AppDb>().UseSqlite(conn).Options;
+        Seed.Run(new AppDb(options));
+        var old = new AppDb(options);
+        old.Database.ExecuteSqlRaw(@"INSERT INTO ""Users"" (""Email"", ""CreatedAt"") VALUES ('a@b.c', '2026-01-01')");
+        old.Database.ExecuteSqlRaw(@"INSERT INTO ""Orders"" (""UserId"", ""CustomerName"", ""Phone"", ""Address"", ""Total"", ""Status"", ""CreatedAt"") VALUES (1, 'Old', '9876543210', 'Andipatti', 690, 'Paid', '2026-01-01')");
+        old.Database.ExecuteSqlRaw(@"ALTER TABLE ""Orders"" DROP COLUMN ""Latitude""");   // pretend the live DB is from before the map pin
+        old.Database.ExecuteSqlRaw(@"ALTER TABLE ""Orders"" DROP COLUMN ""Longitude""");
+
+        var db = new AppDb(options);
+        Seed.Run(db);
+
+        var order = db.Orders.Single();
+        Assert.Equal("Old", order.CustomerName);
+        Assert.Null(order.Latitude);
+    }
 }

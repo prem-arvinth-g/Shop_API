@@ -18,6 +18,13 @@
         <label>Delivery address (with pincode)
           <textarea name="address" [(ngModel)]="form.address" required maxlength="500" rows="4" autocomplete="street-address"></textarea>
         </label>
+        <!-- Optional exact spot, for village or new-area addresses that couriers struggle to find (components/map-pin). -->
+        @if (showMap()) {
+          <app-map-pin [address]="form.address" [(pin)]="pin" />
+          <button type="button" class="link small" (click)="showMap.set(false); pin.set(null)">Remove map pin</button>
+        } @else {
+          <button type="button" class="btn btn-outline btn-sm" (click)="showMap.set(true)">📍 Pin exact location on map (optional)</button>
+        }
         <button type="submit" class="btn btn-block" [disabled]="busy() || f.invalid">
           {{ busy() ? 'Please wait…' : 'Pay ₹' + (cart.checkoutTotal() | number) }}
         </button>

@@ -3,6 +3,7 @@ import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
+import { MapPin, Pin } from '../../components/map-pin/map-pin';
 import { Checkout, PaymentResult } from '../../models/models';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
@@ -13,7 +14,7 @@ declare const Razorpay: any;   // global from checkout.js in src/index.html
 
 @Component({
   selector: 'app-checkout',
-  imports: [FormsModule, RouterLink, DecimalPipe],
+  imports: [FormsModule, RouterLink, DecimalPipe, MapPin],
   templateUrl: './checkout.html',
 })
 export class CheckoutPage {
@@ -27,6 +28,8 @@ export class CheckoutPage {
   protected form = { customerName: '', phone: '', address: '' };
   protected busy = signal(false);
   protected offerSave = signal(false);   // shows the "save to cart?" pop-up in checkout.html
+  protected showMap = signal(false);
+  protected pin = signal<Pin | null>(null);   // set by <app-map-pin>; null = no pin, the typed address is enough
 
   // "Yes, add to cart": the saree joins the cart and Buy now ends, so the cart page takes over.
   saveToCart() {
@@ -42,7 +45,8 @@ export class CheckoutPage {
     this.busy.set(true);
     try {
       const items = this.cart.checkoutItems().map(i => ({ productId: i.product.id, quantity: i.quantity }));
-      const checkout = await firstValueFrom(this.orders.create({ ...this.form, items }));   // POST /api/orders
+      const pin = this.pin();
+      const checkout = await firstValueFrom(this.orders.create({ ...this.form, items, latitude: pin?.lat, longitude: pin?.lng }));   // POST /api/orders
 
       const payment = await this.pay(checkout);                                             // popup
       if (!payment) {

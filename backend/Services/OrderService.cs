@@ -13,7 +13,14 @@ public class OrderService(AppDb db, PaymentService payments)
         var ids = req.Items.Select(i => i.ProductId).ToList();
         var products = await db.Products.Where(p => ids.Contains(p.Id) && p.IsActive).ToDictionaryAsync(p => p.Id);
 
-        var order = new Order { UserId = userId, CustomerName = req.CustomerName.Trim(), Phone = req.Phone, Address = req.Address.Trim() };
+        if (req.Latitude.HasValue != req.Longitude.HasValue) throw new AppError("The map pin is incomplete. Set it again or remove it.");
+        var order = new Order
+        {
+            UserId = userId, CustomerName = req.CustomerName.Trim(), Phone = req.Phone, Address = req.Address.Trim(),
+            // 6 decimals = about 10 cm. More digits are just noise.
+            Latitude = req.Latitude is { } lat ? Math.Round(lat, 6) : null,
+            Longitude = req.Longitude is { } lng ? Math.Round(lng, 6) : null,
+        };
         foreach (var line in req.Items)
         {
             if (!products.TryGetValue(line.ProductId, out var p))

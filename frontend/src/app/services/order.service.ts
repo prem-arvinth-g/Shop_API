@@ -7,6 +7,8 @@ export interface CreateOrder {
   phone: string;
   address: string;
   items: { productId: number; quantity: number }[];   // only ids + quantities; prices come from the server
+  latitude?: number;    // optional map pin (both or neither)
+  longitude?: number;
 }
 
 // Customer orders: backend/Controllers/OrdersController.cs
