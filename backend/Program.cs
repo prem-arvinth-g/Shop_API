@@ -1,5 +1,6 @@
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using ShopApi.Data;
@@ -35,7 +36,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         o.Events.OnRedirectToAccessDenied = c => { c.Response.StatusCode = 403; return Task.CompletedTask; };
     });
 builder.Services.AddAuthorization();
-// shortcut: cookie encryption keys live in the container, so customers must log in again after each deploy.
+// The cookie is encrypted with a secret key. Keep that key in the database (Neon), not the container's disk,
+// otherwise every sleep/restart/deploy makes a new key and everyone is logged out.
+builder.Services.AddDataProtection().SetApplicationName("anand-cotton-sarees").PersistKeysToDbContext<AppDb>();
 
 // ---------- Rate limit: max 10 OTP requests per IP per 10 minutes ----------
 builder.Services.AddRateLimiter(o =>

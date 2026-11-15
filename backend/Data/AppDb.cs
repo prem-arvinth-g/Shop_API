@@ -1,11 +1,14 @@
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ShopApi.Models;
 
 namespace ShopApi.Data;
 
 // EF Core turns these C# classes into database tables and LINQ queries into SQL.
-public class AppDb(DbContextOptions<AppDb> options) : DbContext(options)
+// IDataProtectionKeyContext: the login-cookie encryption keys are stored here too (see Program.cs), so they survive restarts.
+public class AppDb(DbContextOptions<AppDb> options) : DbContext(options), IDataProtectionKeyContext
 {
+    public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Product> Products => Set<Product>();
     public DbSet<User> Users => Set<User>();

@@ -92,16 +92,17 @@ No server call. The cart lives in the browser until checkout.
    - a wrong code runs line 41, `Attempts++`
    - a right code is deleted (one use only), and the user row is created on first login
 3. `backend/Controllers/AuthController.cs:34` builds **claims**: user id, email, and the "Admin" role if the email is listed in `ADMIN_EMAILS` (`AuthService.cs:54`).
-4. `AuthController.cs:39`, `SignInAsync(...)`: ASP.NET **encrypts and signs** the claims into the `acs_auth` cookie, set up at `backend/Program.cs:25`:
+4. `AuthController.cs:39`, `SignInAsync(...)`: ASP.NET **encrypts and signs** the claims into the `acs_auth` cookie, set up at `backend/Program.cs:26`:
    - `HttpOnly`: JavaScript can't read it (we checked: `document.cookie` doesn't contain it)
    - `SameSite=Lax`: other sites can't make your browser send it with their POSTs
    - `Secure` in production: sent only over HTTPS
-   - 7-day sliding expiry (`Program.cs:31`)
+   - 7-day sliding expiry (`Program.cs:32`)
+   - the encryption key itself is stored in the database, table `DataProtectionKeys` (`Program.cs:41`, `AppDb.cs:9`). If it lived on the server's disk, every Render sleep/restart/deploy would create a new key, old cookies could no longer be read, and everyone would have to log in again.
 5. Back in the browser, the response `{ id, email, isAdmin }` is stored in the `auth.me` signal. The header's `@if (auth.me())` flips to show Orders / Logout / Admin.
 
 ### How later requests know who you are
 - The browser attaches the cookie to every `/api` call by itself.
-- `backend/Program.cs:85`, `UseAuthentication()`, decrypts it and fills `User` with the claims.
+- `backend/Program.cs:88`, `UseAuthentication()`, decrypts it and fills `User` with the claims.
 - `[Authorize]` on a controller makes the server answer **401** when there's no valid cookie.
 - `backend/Controllers/OrdersController.cs:18`: the user id comes **from the cookie**, never from the request body, so nobody can place or read orders as someone else.
 
@@ -214,4 +215,3 @@ Customer's bank/UPI → **Razorpay** (holds it) → the shop's bank account, set
 These are marked with `shortcut:` comments in the code.
 - `Seed.cs`: `EnsureCreated` + `AddMissingTables` can add **new tables** but not **new columns** to an existing table. Move to EF migrations before adding a field to an existing model on the live database.
 - `OrderService.cs`: stock is reduced at payment, not reserved at checkout. Two people could both pay for the last saree.
-- `Program.cs`: cookie keys live in the container, so customers log in again after each deploy.
